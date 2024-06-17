@@ -20,6 +20,7 @@ using Exceptionless;
 using Exceptionless.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Common.Sms;
 namespace Initializer
 {
     public static class WebApplicationBuilderExtensions
@@ -56,7 +57,7 @@ namespace Initializer
                     WriteTo.File(initOptions.LogFilePath,//写入文件
                     rollingInterval:RollingInterval.Day, //日志按天保存
                     rollOnFileSizeLimit:true, //限制单个文件的最大长度
-                    fileSizeLimitBytes:10*1024, //单个文件最大长度 byte
+                    fileSizeLimitBytes:1*1024*1024, //单个文件最大长度 byte
                     encoding:System.Text.Encoding.UTF8, //文件字符编码
                     retainedFileCountLimit: 10 //最大保存文件数
                     ).
@@ -69,7 +70,7 @@ namespace Initializer
                 #endregion
 
                 #region 批量配置DbContext
-                string connStr = configuration.GetConnectionString("Default");
+                string? connStr = configuration.GetConnectionString("Default");
                 services.AddAllDbContexts(ctx =>
                 {
                     //连接字符串如果放到appsettings.json中，会有泄密的风险
@@ -79,7 +80,7 @@ namespace Initializer
                 }, assemblies);
                 #endregion
 
-                #region Authentication,Authorization
+                #region 认证授权
                 //只要需要校验Authentication报文头的地方（非IdentityService.WebAPI项目）也需要启用这些
                 //IdentityService项目e还需要启用AddIdentityCore
                 services.AddAuthorization();
@@ -98,8 +99,9 @@ namespace Initializer
                 #region 全局拦截器注册
                 builder.Services.AddMvc(opt =>
                 {
-                    opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截
                     opt.Filters.Add<IdempotentFilter>();//幂等性拦截
+                    opt.Filters.Add<LoggingFiliter>();
+                    opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截
                     opt.Filters.Add<TransactionScopeFilter>();//默认开启事务
                 });
                 #endregion
@@ -187,6 +189,11 @@ namespace Initializer
                 //services.AddDistributedRateLimiting<RedisProcessingStrategy>();
                 //services.AddRedisRateLimiting();
                 services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+                #endregion
+
+                #region 短信服务 阿里云
+                AliyunSmsOptions? aliyunOptions= configuration.GetSection("AliyunSms").Get<AliyunSmsOptions>();
+                services.AddSingleton<ISms>(new AliyunSms(aliyunOptions!));
                 #endregion
             }
             catch (NullReferenceException e1)

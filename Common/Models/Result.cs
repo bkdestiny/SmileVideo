@@ -1,69 +1,77 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Common.Models
 {
-    public class Result : Dictionary<string, object>
+    public class Result
     {
-        private Result()
+        public int Code {  get;private set; }
+
+        public string Message { get;private set; }
+
+        public object Data { get; private set; }
+
+
+        private Result(int code, string message, object data)
         {
+            Code = code;
+            Message = message;
+            Data = data;
+        }
+
+        public Result(int code, string message)
+        {
+            Code = code;
+            Message = message;
 
         }
-        public static Result Response(ResponseTypes type)
-        {
-            SimpleResponseAttribute resp = type.GetType().GetField(type.ToString()).GetCustomAttribute<SimpleResponseAttribute>();
-            Result result = new Result();
-            result.Add("code", resp.Code);
-            result.Add("message", resp.Message);
-            return result;
-        }
-        public static Result Response(ResponseTypes type, object data)
-        {
-            SimpleResponseAttribute resp = type.GetType().GetField(type.ToString()).GetCustomAttribute<SimpleResponseAttribute>();
-            Result result = new Result();
-            result.Add("code", resp.Code);
-            result.Add("message", resp.Message);
-            result.Add("data", data);
-            return result;
-        }
+       
         public static Result Ok()
         {
-            Result result = new Result();
-            result.Add("code", 200);
-            return result;
+            return new Result(200,"请求成功");
         }
-        public static Result Ok(object data)
-        {
-            Result result = new Result();
-            result.Add("code", 200);
-            result.Add("data", data);
-            return result;
+        public static Result Ok(string message) {
+            return new Result(200, message);
+        }
+        public static Result Ok(string message,object data) {
+            return new Result(200, message, data);
         }
         public static Result Error()
         {
-            return Error(500);
+            return new Result(500, "请求失败");
         }
         public static Result Error(int code)
         {
-            return Error(code, "请求失败");
+            return new Result(code,"请求失败");
         }
-        public static Result Error(string message)
+        public static Result Error(string message) 
         {
-            return Error(500, message);
+            return new Result(500, message);
         }
-        public static Result Error(int code, string message)
+        public static Result Error(int code,string message)
         {
-            Result result = new Result();
-            result.Add("code", code);
-            result.Add("message", message);
-            return result;
+            return new Result(code,message);
+        }
+        public static Result Response(ResponseTypes type)
+        {
+            return Response(type, "");
+        }
+        public static Result Response(ResponseTypes type,object data)
+        {
+            FieldInfo? field = type.GetType().GetField(type.ToString());
+            SimpleResponseAttribute[] attributes = (SimpleResponseAttribute[])field!.GetCustomAttributes(typeof(SimpleResponseAttribute), false);
+            if (attributes == null || attributes.Length == 0)
+            {
+                throw new Exception("系统异常");
+            }
+            SimpleResponseAttribute resp = attributes[0];
+            return new Result(resp.Code, resp.Message,data);
         }
     }
 }

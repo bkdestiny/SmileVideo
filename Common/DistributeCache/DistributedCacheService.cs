@@ -86,5 +86,10 @@ namespace Common.DistributeCache
         {
             throw new NotImplementedException();
         }
+
+        public Task<string> StringGetAsync(string key)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,18 @@ namespace Common.JWT
             var tokenDescriptor = new JwtSecurityToken(options.Issuer, options.Audience, claims,
                 expires: DateTime.Now.Add(ExpiryDuration), signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+        }
+        public static string BuildToken(JWTModel model,JWTOptions options)
+        {
+            List<Claim> claims = new List<Claim>();
+            DateTime now = DateTime.Now;
+            claims.Add(new Claim("IpAddress", model.IpAddress));
+            claims.Add(new Claim("Name", model.Name));
+            claims.Add(new Claim("Role", model.Rule));
+            claims.Add(new Claim("AuthorizationTime", now.Ticks.ToString()));
+            long expirationTime = now.AddSeconds(options.ExpireSeconds).Ticks;
+            claims.Add(new Claim("ExpirationTime", expirationTime.ToString()));
+            return BuildToken(claims, options);
         }
     }
 }

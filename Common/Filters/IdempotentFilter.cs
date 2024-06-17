@@ -47,7 +47,7 @@ namespace Common.Filters
                     }
                     else
                     {
-                        context.Result = new ObjectResult(Result.Error("请勿重复请求"));
+                        context.Result = new ObjectResult(ResultA.Error("请勿重复请求"));
                         return;
                     }
                 }

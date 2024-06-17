@@ -17,7 +17,7 @@ namespace Common.JWT
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = true,//校验过期时间
+                    ValidateLifetime = false,//关闭校验过期时间  自己在IAuthorizationMiddlewareResultHandler的实现类校验
                     ValidateIssuerSigningKey = true,//校验签名
                     ValidIssuer = jwtOpt.Issuer,
                     ValidAudience = jwtOpt.Audience,

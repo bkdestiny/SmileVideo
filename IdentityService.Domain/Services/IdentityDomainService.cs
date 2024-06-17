@@ -1,8 +1,10 @@
-﻿using Common.JWT;
+﻿using Common.DistributeCache;
+using Common.JWT;
 using Common.Models;
 using IdentityService.Domain.Entites;
 using IdentityService.Domain.IRepositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,9 @@ namespace IdentityService.Domain.Services
         private readonly UserManager<User> userManager;
 
         private readonly RoleManager<Role> roleManager;
+
+
+        private readonly IDistributeCacheService cache;
         public IdentityDomainService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<User> userManager, RoleManager<Role> roleManager)
         {
             this.userRepository = userRepository;
@@ -74,6 +79,58 @@ namespace IdentityService.Domain.Services
                 return null!;
             }
             return user;
+        }
+        public async Task<User> LoginOrRegitserByPhoneNumberAndVerifyCodeAsync(string phoneNumber,string verifyCode)
+        {
+            string key = "LoginOrRegister:verifyCode:" + phoneNumber;
+            string cacheCode=await cache.StringGetAsync(key);
+            if (string.IsNullOrEmpty(cacheCode) ||!verifyCode.Equals(cacheCode))
+            {
+                throw new CommonException("验证码错误");
+            }
+            User? user=userRepository.FindUserByPhoneNumber(phoneNumber);
+            if (user != null)
+            {
+                //手机号码存在 登录
+                return user;
+            }
+            else
+            {
+                //手机号码不存在 注册
+                string userName =await CreateUserNameAsync();
+                user = new User(userName);
+                string password = CreatePassword();
+                var ir=await userManager.CreateAsync(user, password);
+                if (!ir.Succeeded)
+                {
+                    throw new CommonException("注册失败");
+                }
+                //发送短信通知用户密码
+                return user;
+            }         
+        }
+
+        private async Task<string> CreateUserNameAsync()
+        {
+            try
+            {
+                string userName = "";
+                User? user;
+                do
+                {
+                    userName = "sv_" + new Random().Next(1000000000,1999999999);
+                    user = await userManager.FindByNameAsync(userName);
+                } while (user!=null);
+                return userName;
+
+            }catch(Exception e)
+            {
+                return "";
+            }
+        }
+        private string CreatePassword()
+        {
+            return new Random().Next(10000000, 99999999).ToString();
         }
     }
 }

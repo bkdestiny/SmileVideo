@@ -15,9 +15,12 @@ namespace IdentityService.Infrastructure.Repositories
     {
         private readonly UserManager<User> userManager;
 
-        public UserRepository(UserManager<User> userManager)
+        private IdDbContext idDbContext;
+
+        public UserRepository(UserManager<User> userManager, IdDbContext idDbContext)
         {
             this.userManager = userManager;
+            this.idDbContext = idDbContext;
         }
 
         public Task<IdentityResult> CreateAsync(User user, string password)
@@ -25,5 +28,9 @@ namespace IdentityService.Infrastructure.Repositories
             return userManager.CreateAsync(user, password); 
         }
 
+        public User FindUserByPhoneNumber(string phoneNumber)
+        {
+            return idDbContext.Users.Where(u => u.PhoneNumberConfirmed&&u.PhoneNumber==phoneNumber).First();
+        }
     }
 }

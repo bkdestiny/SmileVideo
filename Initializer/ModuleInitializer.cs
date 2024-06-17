@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.DistributeCache;
+using Common.Sms;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Initializer
     {
         public void Initialize(IServiceCollection services)
         {
-
+            
         }
     }
 }

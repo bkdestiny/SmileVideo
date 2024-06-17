@@ -159,6 +159,9 @@ namespace Common.DistributeCache
             throw new NotImplementedException();
         }
 
-
+        public async Task<string> StringGetAsync(string key)
+        {
+            return await GetDatabase().StringGetAsync(key);
+        }
     }
 }

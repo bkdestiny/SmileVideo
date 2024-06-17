@@ -11,5 +11,7 @@ namespace IdentityService.Domain.IRepositories
     public interface IUserRepository
     {
         Task<IdentityResult> CreateAsync(User user,string password);
+
+        User FindUserByPhoneNumber(string phoneNumber);
     }
 }

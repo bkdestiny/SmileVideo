@@ -9,6 +9,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AlibabaCloud.SDK.Dysmsapi20170525" Version="2.0.24" />
     <PackageReference Include="AsmResolver.DotNet" Version="5.5.1" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="DotNetCore.CAP" Version="8.1.2" />
