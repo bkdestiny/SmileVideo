@@ -2,6 +2,7 @@
 using IdentityService.Domain.Entites;
 using IdentityService.Domain.IRepositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -28,9 +29,10 @@ namespace IdentityService.Infrastructure.Repositories
             return userManager.CreateAsync(user, password); 
         }
 
-        public User FindUserByPhoneNumber(string phoneNumber)
+        public async Task<User?> FindUserByPhoneNumberAsync(string phoneNumber)
         {
-            return idDbContext.Users.Where(u => u.PhoneNumberConfirmed&&u.PhoneNumber==phoneNumber).First();
+            //return idDbContext.Users.Where(u => u.PhoneNumberConfirmed&&u.PhoneNumber==phoneNumber).First();
+            return await idDbContext.Users.Where(u => u.PhoneNumber == phoneNumber).FirstOrDefaultAsync<User>();
         }
     }
 }

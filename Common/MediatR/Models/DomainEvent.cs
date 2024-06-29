@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace Common.MediatR.Models
 {
-    public record DomainEvent<T>(string ID, long Timestamp, string Source, T Data) : INotification;
+    public record DomainEvent<T>(Guid Id, long Timestamp, string Source, T Data) : INotification;
 }

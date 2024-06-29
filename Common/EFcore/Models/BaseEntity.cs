@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Common.EFcore.Models
 {
-    public record BaseEntity : IEntity, IDomainEvents
+    public class BaseEntity : IEntity, IDomainEvents
     {
 
         [NotMapped]

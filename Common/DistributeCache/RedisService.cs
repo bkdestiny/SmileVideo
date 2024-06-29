@@ -83,7 +83,7 @@ namespace Common.DistributeCache
             }
         }
 
-        public async Task SetStringAsync<T>(string key, string value, int expireSeconds)
+        public async Task SetStringAsync(string key, string value, int expireSeconds)
         {
             await GetDatabase().StringSetAsync(key, value, TimeSpan.FromSeconds(expireSeconds));
         }
@@ -95,18 +95,26 @@ namespace Common.DistributeCache
 
         public async Task<bool> tryLockAsync(string key,string token, int expireSeconds, int waitSeconds)
         {
-            string tryLockExec = "local val=redis.call('exists',"+key+");"+
-            " if val==0 then" +
-            "   redis.call('set',"+key+","+token+");" +
-            "   redis.call('expire',"+key+","+ expireSeconds + ");" +
-            "   return 1;" +
-            " else" +
-            " return false;" +
+/*            string tryLockScript= "local val=redis.call('exists','"+key+"')\n"+
+            " if val==0 then\n" +
+            "   redis.call('set','"+key+"','"+token+"')\n" +
+            "   redis.call('expire','"+key+"',"+ expireSeconds + ")\n" +
+            "   return 1\n" +
+            " else\n" +
+            " return false\n" +
+            " end";*/
+            string tryLockScript= "local val=redis.call('exists',@key)\n" +
+            " if val==0 then\n" +
+            "   redis.call('set',@key,@token)\n" +
+            "   redis.call('expire',@key,@expire)\n" +
+            "   return 1\n" +
+            " else\n" +
+            " return false\n" +
             " end";
             long endTime = DateTime.Now.AddSeconds(waitSeconds).Ticks;
             do
             {
-                RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(tryLockExec);
+                RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(LuaScript.Prepare(tryLockScript), new { key = key, token = token, expire = expireSeconds });
                 if (!redisReult.IsNull)
                 {
                     return true;
@@ -117,22 +125,22 @@ namespace Common.DistributeCache
         }
         public async Task<bool> LockAsync(string key, string token, int expireSeconds, int waitSeconds)
         {
-            string tryLockExec = "local r1=redis.call('exists'," + key + ");" +
+            string tryLockScript = "local r1=redis.call('exists',@key);" +
             " if r1==0 then" +
-            "   redis.call('set'," + key + "," + token + ");" +
-            "   redis.call('expire'," + key + "," + expireSeconds + ");" +
+            "   redis.call('set',@key,@token);" +
+            "   redis.call('expire',@key,@expire);" +
             "   return 1;" +
             " else" +
-            " local expire=redis.call('ttl'," + key + ");" +
-            "   if(expire>=0 and expire<" + expireSeconds / 3 + ") then" +
-            "       redis.call('expire'," + key + "," + expireSeconds + ");" +
+            " local expire=redis.call('ttl',@token);" +
+            "   if(expire>=0 and expire<@watchDogExpire) then" +
+            "       redis.call('expire',@key,@expire);" +
             "   end" +
             " return false;" +
             " end";
             long endTime = DateTime.Now.AddSeconds(waitSeconds).Ticks;
             do
             {
-                RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(tryLockExec);
+                RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(LuaScript.Prepare(tryLockScript), new {key=key,token=token,expire=expireSeconds,watchDogExpire=expireSeconds/3});
                 if (!redisReult.IsNull)
                 {
                     return true;
@@ -144,20 +152,16 @@ namespace Common.DistributeCache
 
         public async Task<bool> unLockAsync(string key, string token)
         {
-            string unLockExec = "local token=redis.call('get',"+key+");" +
-                " if(token=="+token+") then" +
-                " redis.call('del',"+key+");" +
+            string unLockScript = "local token=redis.call('get',@key);" +
+                " if(token==@token) then" +
+                " redis.call('del',@key);" +
                 " return 1;" +
                 " end" +
                 " return false;";
-            RedisResult redisResult=await GetDatabase().ScriptEvaluateAsync(unLockExec);
+            RedisResult redisResult=await GetDatabase().ScriptEvaluateAsync(LuaScript.Prepare(unLockScript), new {key=key,token=token});
             return redisResult.IsNull?false:true;
         }
 
-        public Task SetStringAsync(string key, string value, int expireSeconds)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<string> StringGetAsync(string key)
         {

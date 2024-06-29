@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Common.Sms
 {
-    public record AliyunSmsOptions(string RegionId,string SignName,AliyunSmsTemplate Templates,string AccessKey,string AccessKeySecret,string SignatureVersion);
+    public record AliyunSmsOptions(string RegionId,string SignName,SmsTemplate Templates,string AccessKey,string AccessKeySecret,string SignatureVersion);
 
     
 }

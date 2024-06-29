@@ -12,6 +12,6 @@ namespace IdentityService.Domain.IRepositories
     {
         Task<IdentityResult> CreateAsync(User user,string password);
 
-        User FindUserByPhoneNumber(string phoneNumber);
+        Task<User?> FindUserByPhoneNumberAsync(string phoneNumber);
     }
 }

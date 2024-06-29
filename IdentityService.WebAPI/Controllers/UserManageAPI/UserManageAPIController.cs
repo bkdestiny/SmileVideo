@@ -2,7 +2,7 @@
 using Common.Models;
 using IdentityService.Domain.Entites;
 using IdentityService.Domain.IRepositories;
-using IdentityService.Domain.Services;
+using IdentityService.Domain.DomainServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +29,10 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
             this.identityDomainService = identityDomainService;
             this.configuration = configuration;
         }
-
+        /// <summary>
+        /// 初始化管理员
+        /// </summary>
+        /// <returns></returns>
         [HttpPost("InitAdmin")]
         public async Task<ActionResult<Result>> InitAdmin()
         {

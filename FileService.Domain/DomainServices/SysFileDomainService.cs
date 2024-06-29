@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.Sms
+namespace FileService.Domain.DomainServices
 {
-    public class AliyunSmsTemplate
+    public class SysFileDomainService
     {
-        public string? VerifyCode { get; set; } //验证码模板
-
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Common;
 using IdentityService.Domain.IRepositories;
-using IdentityService.Domain.Services;
+using IdentityService.Domain.DomainServices;
 using IdentityService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 

@@ -21,6 +21,7 @@ using Exceptionless.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Common.Sms;
+using Common.MediatR;
 namespace Initializer
 {
     public static class WebApplicationBuilderExtensions
@@ -143,11 +144,15 @@ namespace Initializer
                 //StackRedis
                 string? redisConn = configuration.GetValue<string>("Redis:ConnectionString");
                 string? instanceName = configuration.GetValue<string>("Redis:InstanceName");
-                services.AddSingleton<IDistributeCacheService>(new RedisService(redisConn, instanceName, 0));
+                services.AddSingleton<IDistributeCacheService>(new RedisService(redisConn!, instanceName!, 0));
                 #endregion
 
 
-                #region 消息中间件
+                #region 领域事件 MediatR
+                services.AddMediatR(assemblies);
+                #endregion
+
+                #region 消息中间件 RabbitMQ
                 services.AddCap(x =>
                 {
                     //使用SqlServer数据库,连接地址请依实际修改

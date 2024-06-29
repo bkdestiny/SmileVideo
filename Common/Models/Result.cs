@@ -36,8 +36,8 @@ namespace Common.Models
         {
             return new Result(200,"请求成功");
         }
-        public static Result Ok(string message) {
-            return new Result(200, message);
+        public static Result Ok(object data) {
+            return new Result(200, "请求成功",data);
         }
         public static Result Ok(string message,object data) {
             return new Result(200, message, data);

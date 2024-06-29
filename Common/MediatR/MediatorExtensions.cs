@@ -16,7 +16,10 @@ namespace Common.MediatR
         /// <returns></returns>
         public static IServiceCollection AddMediatR(this IServiceCollection services, IEnumerable<Assembly> assemblies)
         {
-            return services.AddMediatR(assemblies.ToArray());
+            return services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssemblies(assemblies.ToArray());
+            });
         }
         public static async Task DispatchDomainEventsAsync(this IMediator mediator, DbContext ctx)
         {

@@ -24,13 +24,44 @@ namespace Common.Sms
             config.SignatureVersion = options.SignatureVersion;
             this.client = new Client(config);
         }
+
+        public SmsTemplate GetSmsTemplate()
+        {
+            return options.Templates;
+        }
+
+        public async Task<(bool, string)> SendAsync(string phoneNumbers, string templateCode,string templateParam, params string[] args)
+        {
+            SendSmsRequest request = new SendSmsRequest();
+            request.SignName = options.SignName;
+            request.TemplateCode = templateCode;
+            request.PhoneNumbers = phoneNumbers;
+            request.TemplateParam = "{" + string.Format(templateParam,args) + "}";
+            try
+            {
+                SendSmsResponse response = await client.SendSmsAsync(request);
+                if (response.Body.Code.Equals("OK"))
+                {
+                    return (true, response.Body.Message);
+                }
+                else
+                {
+                    return (false, response.Body.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                return (false, e.Message);
+            }
+        }
+
         public async Task<(bool, string)> SendVerifyCodeAsync(string phoneNumber, string verifyCode)
         {
             SendSmsRequest request = new SendSmsRequest();
             request.SignName = options.SignName;
             request.TemplateCode = options.Templates.VerifyCode;
             request.PhoneNumbers = phoneNumber;
-            request.TemplateParam = "{\"code\":\"" + verifyCode + "\"}";
+            request.TemplateParam = "{"+string.Format(options.Templates.VerifyCodeParam!, verifyCode)+"}";
             try
             {
                 SendSmsResponse response = await client.SendSmsAsync(request);

@@ -1,13 +1,13 @@
-﻿using Common.JWT;
+﻿using Common.Attributes;
+using Common.JWT;
 using Common.Sms;
 using IdentityService.Domain.Entites;
-using IdentityService.Domain.Services;
+using IdentityService.Domain.DomainServices;
 using IdentityService.WebAPI.Controllers.IdentityAPI.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Runtime.Serialization;
 using System.Security.Claims;
 namespace IdentityService.WebAPI.Controllers.IdentityAPI
 {
@@ -22,6 +22,7 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
         private readonly RoleManager<Role> roleManager;
         private readonly ILogger<UserController> logger;
         private readonly ISms sms;
+        
         public UserController(IdentityDomainService identityDomainService, IOptions<JWTOptions> jwtOptions, UserManager<User> userManager, RoleManager<Role> roleManager, ILogger<UserController> logger, ISms sms)
         {
             this.identityDomainService = identityDomainService;
@@ -71,11 +72,34 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             return Result.Ok();
         }
         /// <summary>
+        /// 发送登录或注册短信验证码
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost("SendLoginOrRegisterVerifyCode")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Result>> SendLoginOrRegisterVerifyCode(SendLoginOrRegisterVerifyCodeRequest req)
+        {
+            var valid=new SendLoginOrRegisterVerifyCodeRequestValidator().Validate(req);
+            if (!valid.IsValid) {
+                return Result.Error(valid.Errors[0].ErrorMessage);
+            }
+            (bool success,string? message)=await identityDomainService.SendLoginOrRegisterVerifyCode(req.PhoneNumber);
+            if (!success)
+            {
+                return Result.Error(message!);
+            }
+            return Result.Ok();
+        }
+
+        /// <summary>
         /// 登录或注册 
         /// </summary>
         /// <param name="req">手机号码,验证码</param>
         /// <returns></returns>
         [HttpPost("LoginOrRegitserByPhoneNumberAndVerifyCode")]
+        [AllowAnonymous]
+        [Idempotent]
         public async Task<ActionResult<Result>> LoginOrRegitserByPhoneNumberAndVerifyCode(LoginOrRegisterByPhoneNumberAndVerifyCodeRequest req)
         {
             var valid = new LoginOrRegisterByPhoneNumberAndVerifyCodeRequestValidator().Validate(req);
@@ -90,16 +114,17 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             }
             IEnumerable<string> roles=await userManager.GetRolesAsync(user);
             string IpAddress = HttpHelper.GetRemoteIpAddress(this.HttpContext);
-            string token=JWTHelper.BuildToken(new JWTModel(user.UserName, string.Join(",", roles), IpAddress),jwtOptions);
+            string token=JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), IpAddress),jwtOptions);
             return Result.Ok(token);
 
         }
+
 
         [HttpPost("Test")]
         [AllowAnonymous]
         public async Task<ActionResult<Result>> Test(string phoneNumber,string verifyCode)
         {
-            (bool b,string message)=await sms.SendVerifyCodeAsync(phoneNumber, verifyCode);
+            (bool b,string message)=await sms.SendAsync(phoneNumber,sms.GetSmsTemplate().VerifyCode!,sms.GetSmsTemplate().VerifyCodeParam!,verifyCode); 
             return Result.Ok(message);
         }
 
