@@ -22,7 +22,7 @@ namespace IdentityService.WebAPI
             builder.ConfigureExtraServices(new InitializerOptions
             {
                 EventBusQueueName = "IdentityService.WebAPI",
-                LogFilePath = $"d:/temp/{DateTime.Now:yyyy-MM-dd}//IdentityService.log"
+                LogFilePath = $"d:/SmileVideo/IdentityService/logs/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
 
 
@@ -67,10 +67,6 @@ namespace IdentityService.WebAPI
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseDefault();
 

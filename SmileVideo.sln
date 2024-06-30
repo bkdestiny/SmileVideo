@@ -19,9 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.Infrastruct
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.WebAPI", "IdentityService.WebAPI\IdentityService.WebAPI.csproj", "{12A5EA77-7BEF-41C1-B0FF-1D69E82430C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileService.Domain", "FileService.Domain\FileService.Domain.csproj", "{6B5E0004-DFDB-49B4-AA99-A4B4DF999F0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileService.Domain", "FileService.Domain\FileService.Domain.csproj", "{6B5E0004-DFDB-49B4-AA99-A4B4DF999F0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileService.Infrastructure", "FileService.Infrastructure\FileService.Infrastructure.csproj", "{2D322C76-9310-493E-9350-AD6DDEC649AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileService.Infrastructure", "FileService.Infrastructure\FileService.Infrastructure.csproj", "{2D322C76-9310-493E-9350-AD6DDEC649AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileService.WebAPI", "FileService.WebAPI\FileService.WebAPI.csproj", "{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{2D322C76-9310-493E-9350-AD6DDEC649AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D322C76-9310-493E-9350-AD6DDEC649AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D322C76-9310-493E-9350-AD6DDEC649AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{12A5EA77-7BEF-41C1-B0FF-1D69E82430C3} = {80053C06-5F96-4C89-9D1D-45E0A11231FF}
 		{6B5E0004-DFDB-49B4-AA99-A4B4DF999F0E} = {E5C165AD-3721-4EF9-BB3B-A5FCE032167F}
 		{2D322C76-9310-493E-9350-AD6DDEC649AF} = {E5C165AD-3721-4EF9-BB3B-A5FCE032167F}
+		{8FA8AB94-14D1-4A7D-B98D-E4BC7EBF12FD} = {E5C165AD-3721-4EF9-BB3B-A5FCE032167F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9FD7CCD7-B341-42D5-ACE5-8FBBF514EC3F}

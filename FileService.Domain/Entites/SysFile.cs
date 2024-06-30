@@ -7,18 +7,13 @@ using System.Threading.Tasks;
 
 namespace FileService.Domain.Entites
 {
-    public class SysFile : BaseEntity, IHasCreateTime, IHasDeleteTime, ISoftDelete
+    public class SysFile : BaseEntity, IHasCreateTime
     {
 
         /// <summary>
         /// 文件名称
         /// </summary>
         public string FileName {  get; private set; }
-
-       /// <summary>
-       /// 文件扩展名
-       /// </summary>
-        public string FileExtension { get; private set; }
 
         /// <summary>
         /// 文件内容类型
@@ -51,14 +46,26 @@ namespace FileService.Domain.Entites
 
         public DateTime CreateTime { private set; get; }
 
-        public DateTime? DeleteTime { private set; get; }
-
-        public bool IsDeleted { private set; get;}
-
-        public void SoftDelete()
+        public SysFile(string fileName, string fileContentType, long fileSize, string fileSHA256Hash, Uri remoteUrl, Uri backupUrl, Guid creatorId)
         {
-            this.IsDeleted = true;
-            this.DeleteTime = DateTime.Now;
+            FileName = fileName;
+            FileContentType = fileContentType;
+            FileSize = fileSize;
+            FileSHA256Hash = fileSHA256Hash;
+            RemoteUrl = remoteUrl;
+            BackupUrl = backupUrl;
+            CreatorId = creatorId;
+            CreateTime = DateTime.Now;
+        }
+
+        public SysFile(string fileName, string fileContentType, long fileSize, string fileSHA256Hash, Uri remoteUrl, DateTime createTime)
+        {
+            FileName = fileName;
+            FileContentType = fileContentType;
+            FileSize = fileSize;
+            FileSHA256Hash = fileSHA256Hash;
+            RemoteUrl = remoteUrl;
+            CreateTime = createTime;
         }
     }
 }
