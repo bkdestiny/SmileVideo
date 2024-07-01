@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.Net;
 namespace IdentityService.WebAPI.Controllers.IdentityAPI
 {
     [Route("Identity")]
@@ -49,7 +50,7 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
                 return Result.Response(ResponseTypes.UserNameOrPasswordError);
             }
             IEnumerable<string> roles = await userManager.GetRolesAsync(user);
-            string rolesStr = string.Join(",", roles);
+/*            string rolesStr = string.Join(",", roles);
             List<Claim> claims = new List<Claim>();
             claims.Add(new Claim("IpAddress", ipAddress));
             claims.Add(new Claim("Name", user.UserName!));
@@ -57,7 +58,8 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             claims.Add(new Claim("AuthorizationTime", DateTime.Now.Ticks.ToString()));
             long expirationTime = DateTime.Now.AddSeconds(jwtOptions.ExpireSeconds).Ticks;
             claims.Add(new Claim("ExpirationTime", expirationTime.ToString()));
-            string token = JWTHelper.BuildToken(claims, jwtOptions);
+            string token = JWTHelper.BuildToken(claims, jwtOptions);*/
+            string token = JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress, user.Avatar), jwtOptions);
             Result result=Result.Ok("登录成功", token);
             return result;
         }
@@ -113,8 +115,8 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
                 return Result.Error();
             }
             IEnumerable<string> roles=await userManager.GetRolesAsync(user);
-            string IpAddress = HttpHelper.GetRemoteIpAddress(this.HttpContext);
-            string token=JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), IpAddress),jwtOptions);
+            string ipAddress = HttpHelper.GetRemoteIpAddress(this.HttpContext);
+            string token=JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress,user.Avatar),jwtOptions);
             return Result.Ok(token);
 
         }

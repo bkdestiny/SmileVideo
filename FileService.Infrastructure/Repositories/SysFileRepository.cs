@@ -28,5 +28,10 @@ namespace FileService.Infrastructure.Repositories
         {
             return await sysFileDbContext.SysFiles.Where(f => f.FileSHA256Hash == fileSHA256Hash && f.FileSize == fileSize).FirstOrDefaultAsync<SysFile>();
         }
+
+        public async Task<SysFile?> FindSysFileById(Guid id)
+        {
+            return await sysFileDbContext.SysFiles.Where(f=>f.Id == id).FirstOrDefaultAsync<SysFile>();
+        }
     }
 }

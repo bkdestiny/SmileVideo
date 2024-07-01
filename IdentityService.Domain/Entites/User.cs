@@ -10,6 +10,7 @@ namespace IdentityService.Domain.Entites
 {
     public class User : IdentityUser<Guid>, IHasCreateTime, IHasDeleteTime, ISoftDelete
     {
+        public Guid Avatar { get; set; }
         public bool IsDeleted { get; private set; }
 
         public DateTime CreateTime { get; private set; }

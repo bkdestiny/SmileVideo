@@ -26,9 +26,9 @@ namespace Common.Models
         /// <summary>
         /// Identity认证服务
         /// </summary>
-        [SimpleResponse(401, "用户名或密码错误")]
+        [SimpleResponse(500, "用户名或密码错误")]
         UserNameOrPasswordError,
-        [SimpleResponse(401, "用户已被锁定")]
+        [SimpleResponse(500, "用户已被锁定")]
         UserIsLocked
 
     }

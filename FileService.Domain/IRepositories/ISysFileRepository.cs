@@ -23,5 +23,12 @@ namespace FileService.Domain.IRepositories
         /// <param name="sysFile"></param>
         /// <returns></returns>
         Task AddSysFileAsync(SysFile sysFile);
+
+        /// <summary>
+        /// 根据Id查找
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<SysFile?> FindSysFileById(Guid id);
     }
 }

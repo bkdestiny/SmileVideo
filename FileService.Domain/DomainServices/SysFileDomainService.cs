@@ -10,7 +10,7 @@ namespace FileService.Domain.DomainServices
 {
     public class SysFileDomainService
     {
-        private string fileRootDir;
+        private readonly string tempFileRootDir;
 
         private readonly IStorageService storageService;
 
@@ -21,12 +21,16 @@ namespace FileService.Domain.DomainServices
 
         public SysFileDomainService(IConfiguration configuration, IStorageService storageService, ILogger<SysFileDomainService> logger, ISysFileRepository sysFileRepository)
         {
-            fileRootDir = configuration.GetValue<string>("FileService:FileRootDir")!;
+            tempFileRootDir = configuration.GetValue<string>("TempFileRootDir")!;
             this.storageService = storageService;
             this.logger = logger;
             this.sysFileRepository = sysFileRepository;
         }
-
+        /// <summary>
+        /// 上传文件到云存储服务器并且保存文件到数据库表
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public async Task<Guid?> SaveFileAsync(IFormFile file)
         {
             try
@@ -46,7 +50,7 @@ namespace FileService.Domain.DomainServices
                     //SysFile表不存在该文件,需要新增该文件
                     //1.先复制到本地文件  
                     DateTime now = DateTime.Now;
-                    string localFolderPath = $"{fileRootDir}/temp/{now:yyyy-MM-dd}/{fileSHA256Hash}";
+                    string localFolderPath = $"{tempFileRootDir}/temp/{now:yyyy-MM-dd}/{fileSHA256Hash}";
                     Stream? localStream = FileHelper.Create(localFolderPath, file.FileName);
 
                     if (localStream == null)
@@ -83,6 +87,20 @@ namespace FileService.Domain.DomainServices
             {
                 return null;
             }
+        }
+        /// <summary>
+        /// 根据Id获取文件的存储地址
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Uri?> GetSysFileUrl(Guid id)
+        {
+            SysFile? sysFile=await sysFileRepository.FindSysFileById(id);
+            if (sysFile == null)
+            {
+                return null;
+            }
+            return sysFile.RemoteUrl;
         }
     }
 }

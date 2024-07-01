@@ -25,9 +25,10 @@ namespace Common.JWT
         {
             List<Claim> claims = new List<Claim>();
             DateTime now = DateTime.Now;
-            claims.Add(new Claim("IpAddress", model.IpAddress));
-            claims.Add(new Claim("Name", model.Name));
-            claims.Add(new Claim("Role", model.Rule));
+            claims.Add(new Claim("IpAddress", model.ipAddress));
+            claims.Add(new Claim("Name", model.name));
+            claims.Add(new Claim("Role", model.rule));
+            claims.Add(new Claim("Avatar", model.avatar.ToString()));
             claims.Add(new Claim("AuthorizationTime", now.Ticks.ToString()));
             long expirationTime = now.AddSeconds(options.ExpireSeconds).Ticks;
             claims.Add(new Claim("ExpirationTime", expirationTime.ToString()));

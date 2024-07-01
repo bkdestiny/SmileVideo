@@ -17,7 +17,11 @@ namespace FileService.WebAPI.Controllers.UploadAPI
         {
             this.sysFileDomainService = sysFileDomainService;
         }
-
+        /// <summary>
+        /// 角色Admin的上传文件接口
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpPost("UploadFile")]
         public async Task<ActionResult<Result>> UploadFromAdmin(UploadFromAdminRequest req)
         {

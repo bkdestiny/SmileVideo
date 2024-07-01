@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.JWT
+namespace Common.EFcore.Models
 {
-    public record JWTModel(string name,string rule,string ipAddress,Guid avatar);
+    public interface IHasSortIndex
+    {
+        int SortIndex { get; set; }
+    }
 }
