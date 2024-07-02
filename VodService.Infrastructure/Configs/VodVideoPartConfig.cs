@@ -14,8 +14,8 @@ namespace VodService.Infrastructure.Configs
         public void Configure(EntityTypeBuilder<VodVideoPart> builder)
         {
             builder.ToTable("VodVideoPart");
+            builder.HasKey(e => e.Id).IsClustered(false);
             builder.Property(p => p.PartName).IsUnicode().IsRequired();
-            builder.Property(p => p.Video).IsRequired();
         }
     }
 }

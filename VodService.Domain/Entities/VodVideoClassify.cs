@@ -26,6 +26,8 @@ namespace VodService.Domain.Entities
         /// 与视频表的多对多关系 
         /// </summary>
         public List<VodVideo> Videos { get; set; } = new List<VodVideo>();
+
+        private VodVideoClassify() { }
         public VodVideoClassify(string classifyName, ClassifyTypes classifyType, int sortIndex = 999)
         {
             ClassifyName = classifyName;

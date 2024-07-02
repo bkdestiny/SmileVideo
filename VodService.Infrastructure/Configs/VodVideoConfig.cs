@@ -14,11 +14,18 @@ namespace VodService.Infrastructure.Configs
         public void Configure(EntityTypeBuilder<VodVideo> builder)
         {
             builder.ToTable("VodVideo");
-            builder.Property(v => v.VideoName).IsUnicode().IsRequired();
+            builder.HasKey(e => e.Id).IsClustered(false);
+            builder.Property(v => v.VideoName).HasMaxLength(200).IsUnicode().IsRequired();
+            builder.Property(v => v.Scriptwriter).IsUnicode();
+            builder.Property(v=>v.Profile).HasMaxLength(500).IsUnicode();
+            builder.Property(v=>v.Performers).HasMaxLength(500).IsUnicode();
+            builder.Property(v=>v.Description).HasMaxLength(500).IsUnicode();
             //配置视频表与视频片段表的一对多关系
             builder.HasMany<VodVideoPart>(v => v.VideoParts).WithOne(p => p.Video);
             //配置视频表与视频分类表的多对多关系
             builder.HasMany<VodVideoClassify>(v => v.VideoClassifies).WithMany(c => c.Videos).UsingEntity(r=>r.ToTable("VodVideoClassifyRelation"));
+            //配置视频表与视频评论表的一对多关系
+            builder.HasMany<VodVideoComment>(v=>v.VideoComments).WithOne(c=>c.Video);
         }
     }
 }

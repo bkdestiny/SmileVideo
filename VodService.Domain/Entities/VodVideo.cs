@@ -14,6 +14,12 @@ namespace VodService.Domain.Entities
         /// </summary>
         public string VideoName { get; set; }
 
+        /// <summary>
+        /// 封面图片
+        /// </summary>
+        public Guid? CoverFile {  get; set; }
+
+
         public List<VodVideoPart> VideoParts { get; set; }=new List<VodVideoPart>();
 
         /// <summary>
@@ -21,16 +27,57 @@ namespace VodService.Domain.Entities
         /// </summary>
         public List<VodVideoClassify> VideoClassifies { get; set; }=new List<VodVideoClassify>();
 
+        /// <summary>
+        /// 与视频评论的一对多关系
+        /// </summary>
+        public List<VodVideoComment> VideoComments { get; set; }=new List<VodVideoComment>();
+        /// <summary>
+        /// 出演人员
+        /// </summary>
+        public string? Performers {  get; set; } 
+        /// <summary>
+        /// 导演
+        /// </summary>
+        public string? Director {  get; set; }
+        /// <summary>
+        /// 编剧
+        /// </summary>
+        public string? Scriptwriter { get; set; }
+        /// <summary>
+        /// 描述
+        /// </summary>
+        public string? Description { get; set; }
+        /// <summary>
+        /// 简介
+        /// </summary>
+        public string? Profile { get; set; }
+
         public DateTime CreateTime { get; private set; }
 
         public bool IsDeleted { get; private set; }
 
         public DateTime? DeleteTime { get; private set; }
-
+        /// <summary>
+        /// 是否公开该视频
+        /// </summary>
+        public bool IsPublic { get; set; } = true;
         public void SoftDelete()
         {
             this.DeleteTime = DateTime.Now;
             this.IsDeleted = true;
+        }
+        private VodVideo() { }
+        public VodVideo(string videoName, Guid coverFile=new Guid(), string performers="", string director="", string scriptwriter="", string description="", string profile="", bool isPublic=true)
+        {
+            VideoName = videoName;
+            CoverFile = coverFile;
+            Performers = performers;
+            Director = director;
+            Scriptwriter = scriptwriter;
+            Description = description;
+            Profile = profile;
+            IsPublic = isPublic;
+            CreateTime= DateTime.Now;   
         }
     }
 }

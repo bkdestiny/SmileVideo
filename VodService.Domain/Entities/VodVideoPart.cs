@@ -22,7 +22,7 @@ namespace VodService.Domain.Entities
         /// <summary>
         /// 片段文件ID
         /// </summary>
-        public Guid PartFile {  get; set; }
+        public Guid? PartFile {  get; set; }
 
         /// <summary>
         /// 上映时间
@@ -30,22 +30,23 @@ namespace VodService.Domain.Entities
         public DateTime ReleaseTime { get; set; }
 
         /// <summary>
-        /// 是否隐藏该片段
+        /// 是否公开该片段
         /// </summary>
-        public bool IsHidden { get; set; }
+        public bool IsPublic { get; set; } = true;
 
         /// <summary>
         /// 排序
         /// </summary>
         public int SortIndex { get; set ; }
 
-        public VodVideoPart(string partName, VodVideo video, Guid partFile, DateTime releaseTime, bool isHidden=false, int sortIndex=999)
+        private VodVideoPart() { }
+        public VodVideoPart(string partName, VodVideo video, Guid partFile, DateTime releaseTime, bool isPublic=true, int sortIndex=999)
         {
             PartName = partName;
             Video = video;
             PartFile = partFile;
             ReleaseTime = releaseTime;
-            IsHidden = isHidden;
+            IsPublic = isPublic;
             SortIndex = sortIndex;
         }
     }

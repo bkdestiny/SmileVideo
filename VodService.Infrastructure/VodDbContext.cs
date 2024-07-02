@@ -15,6 +15,7 @@ namespace VodService.Infrastructure
         public DbSet<VodVideo> VodVideos { get; set; }
         public DbSet<VodVideoPart> VodVideoParts { get; set; }
         public DbSet<VodVideoClassify> VodVideoClassifies { get; set; }
+        public DbSet<VodVideoComment> VodVideoComments { get; set; }
         public VodDbContext(DbContextOptions options, IMediator? mediator) : base(options, mediator)
         {
         }
