@@ -60,15 +60,16 @@ namespace VodService.Domain.Entities
         /// <summary>
         /// 是否公开该视频
         /// </summary>
-        public bool IsPublic { get; set; } = true;
+        public VideoStatuses VideoStatus { get; set; }
         public void SoftDelete()
         {
             this.DeleteTime = DateTime.Now;
             this.IsDeleted = true;
         }
         private VodVideo() { }
-        public VodVideo(string videoName, Guid coverFile=new Guid(), string performers="", string director="", string scriptwriter="", string description="", string profile="", bool isPublic=true)
+        public VodVideo(Guid id,string videoName, Guid? coverFile, string? performers, string? director, string? scriptwriter, string? description, string? profile, VideoStatuses videoStatus = VideoStatuses.Public)
         {
+            Id=id==Guid.Empty? Guid.NewGuid():id;
             VideoName = videoName;
             CoverFile = coverFile;
             Performers = performers;
@@ -76,8 +77,12 @@ namespace VodService.Domain.Entities
             Scriptwriter = scriptwriter;
             Description = description;
             Profile = profile;
-            IsPublic = isPublic;
-            CreateTime= DateTime.Now;   
+            VideoStatus = videoStatus;
+            CreateTime = DateTime.Now;
         }
+    }
+    public enum VideoStatuses
+    {
+        Public,Private
     }
 }

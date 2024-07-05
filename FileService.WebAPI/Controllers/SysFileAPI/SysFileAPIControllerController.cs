@@ -1,5 +1,7 @@
-﻿using Common.Models;
+﻿using Common.Attributes;
+using Common.Models;
 using FileService.Domain.DomainServices;
+using FileService.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +9,7 @@ namespace FileService.WebAPI.Controllers.SysFileAPI
 {
     [Route("SysFile")]
     [ApiController]
+    [UnitOfWork(typeof(SysFileDbContext))]
     public class SysFileAPIControllerController : ControllerBase
     {
         private readonly SysFileDomainService sysFileDomainService;

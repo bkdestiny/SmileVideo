@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Common.Models
 {
@@ -15,7 +16,27 @@ namespace Common.Models
 
         public string Message { get;private set; }
 
-        public object Data { get; private set; }
+        public object? Data { get; private set; }
+
+        /// <summary>
+        /// 通用
+        /// </summary>
+        public static readonly Result UnknownError = new Result(520, "未知错误");
+        public static readonly Result MissingRelevantConfiguration = new Result(500, "缺少相关配置");
+        public static readonly Result TooManyRequests = new Result(429, "请求过于频繁,请稍后重试");
+        public static readonly Result RequestParamError = new Result(400, "请求参数错误");
+        public static readonly Result DataQueryFailed = new Result(500, "数据查询失败");
+
+        /// <summary>
+        /// IdentityService认证服务
+        /// </summary>
+        public static readonly Result UserNameOrPasswordError = new Result(500, "用户名或密码错误");
+        public static readonly Result UserIsLocked = new Result(500, "用户已被锁定");
+
+        /// <summary>
+        /// FileService文件服务
+        /// </summary>
+        public static readonly Result ResourceNotExist = new Result(500, "资源不存在");
 
 
         private Result(int code, string message, object data)
@@ -25,11 +46,10 @@ namespace Common.Models
             Data = data;
         }
 
-        public Result(int code, string message)
+        private Result(int code, string message)
         {
             Code = code;
             Message = message;
-
         }
        
         public static Result Ok()
@@ -57,21 +77,6 @@ namespace Common.Models
         public static Result Error(int code,string message)
         {
             return new Result(code,message);
-        }
-        public static Result Response(ResponseTypes type)
-        {
-            return Response(type, "");
-        }
-        public static Result Response(ResponseTypes type,object data)
-        {
-            FieldInfo? field = type.GetType().GetField(type.ToString());
-            SimpleResponseAttribute[] attributes = (SimpleResponseAttribute[])field!.GetCustomAttributes(typeof(SimpleResponseAttribute), false);
-            if (attributes == null || attributes.Length == 0)
-            {
-                throw new Exception("系统异常");
-            }
-            SimpleResponseAttribute resp = attributes[0];
-            return new Result(resp.Code, resp.Message,data);
         }
     }
 }

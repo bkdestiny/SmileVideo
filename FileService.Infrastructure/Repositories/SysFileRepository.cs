@@ -21,7 +21,6 @@ namespace FileService.Infrastructure.Repositories
         public async Task AddSysFileAsync(SysFile sysFile)
         {
             await sysFileDbContext.SysFiles.AddAsync(sysFile);
-            await sysFileDbContext.SaveChangesAsync();
         }
 
         public async Task<SysFile?> FindSysFileByFileSHA56HashAndFileSizeAsync(string fileSHA256Hash, long fileSize)

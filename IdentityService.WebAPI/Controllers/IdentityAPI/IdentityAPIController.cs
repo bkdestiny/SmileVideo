@@ -47,7 +47,7 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             User? user = await identityDomainService.LoginByUserNameAndPasswordAsync(req.UserName, req.Password);
             if (user == null)
             {
-                return Result.Response(ResponseTypes.UserNameOrPasswordError);
+                return Result.Error("用户名或密码不存在");
             }
             IEnumerable<string> roles = await userManager.GetRolesAsync(user);
 /*            string rolesStr = string.Join(",", roles);

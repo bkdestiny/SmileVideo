@@ -20,19 +20,6 @@ namespace Common.Models
         {
 
         }
-        public CommonException(ResponseTypes type)
-        {
-            try
-            {
-                SimpleResponseAttribute? rep = type.GetType().GetField(type.ToString()).GetCustomAttribute<SimpleResponseAttribute>();
-                code = rep.Code;
-                message = rep.Message;
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
 
         public CommonException(int code)
         {

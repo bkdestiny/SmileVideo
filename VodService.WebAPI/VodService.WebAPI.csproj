@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -19,10 +19,6 @@
     <ProjectReference Include="..\Initializer\Initializer.csproj" />
     <ProjectReference Include="..\VodService.Domain\VodService.Domain.csproj" />
     <ProjectReference Include="..\VodService.Infrastructure\VodService.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\VideoAPI\" />
   </ItemGroup>
 
 </Project>

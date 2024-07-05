@@ -40,7 +40,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
             string? password = configuration.GetValue<string>("IdentityService:Admin:Password");
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
             {
-                return Result.Response(ResponseTypes.MissingRelevantConfiguration);
+                return Result.Error("缺少相关配置");
             }
             return await identityDomainService.InitAdmin(userName, password);
         }

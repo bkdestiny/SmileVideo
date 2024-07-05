@@ -103,7 +103,7 @@ namespace Initializer
                     opt.Filters.Add<IdempotentFilter>();//幂等性拦截
                     opt.Filters.Add<LoggingFiliter>();
                     opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截
-                    opt.Filters.Add<TransactionScopeFilter>();//默认开启事务
+                    opt.Filters.Add<UnitOfWorkFilter>();//工作单元
                 });
                 #endregion
 
