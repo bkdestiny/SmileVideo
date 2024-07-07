@@ -67,7 +67,7 @@ namespace VodService.Domain.Entities
             this.IsDeleted = true;
         }
         private VodVideo() { }
-        public VodVideo(Guid id,string videoName, Guid? coverFile, string? performers, string? director, string? scriptwriter, string? description, string? profile, VideoStatuses videoStatus = VideoStatuses.Public)
+        public VodVideo(Guid id,string videoName, Guid? coverFile, string? performers, string? director, string? scriptwriter, string? description, string? profile, VideoStatuses videoStatus)
         {
             Id=id==Guid.Empty? Guid.NewGuid():id;
             VideoName = videoName;

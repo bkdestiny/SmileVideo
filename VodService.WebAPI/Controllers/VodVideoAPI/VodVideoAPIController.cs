@@ -2,9 +2,11 @@
 using Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using VodService.Domain.DomainServices;
 using VodService.Domain.Entities;
+using VodService.Domain.IRepositories;
 using VodService.Infrastructure;
 using VodService.WebAPI.Controllers.VodVideoAPI.Dtos;
 
@@ -17,9 +19,12 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
     {
         private readonly VodDomainService vodDomainService;
 
-        public VodVideoAPIController(VodDomainService vodDomainService)
+        private readonly IVodVideoRepository vodVideoRepository;
+
+        public VodVideoAPIController(VodDomainService vodDomainService, IVodVideoRepository vodVideoRepository)
         {
             this.vodDomainService = vodDomainService;
+            this.vodVideoRepository = vodVideoRepository;
         }
         /// <summary>
         /// 新增视频
@@ -27,6 +32,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <param name="vodVideoDto"></param>
         /// <returns></returns>
         [HttpPost("AddVodVideo")]
+        [Idempotent]
         public async Task<ActionResult<Result>> AddVodVideo(VodVideoDto vodVideoDto)
         {
             var vr = new VodVideoDtoValidator().Validate(vodVideoDto);
@@ -34,8 +40,8 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            VodVideo vodVideo = new VodVideo(Guid.Empty, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile);
-            (bool addSuccess, string addMessage) = await vodDomainService.AddVodVideoAsync(vodVideo);
+            VodVideo vodVideo = new VodVideo(Guid.Empty, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile, vodVideoDto.VideoStatus);
+            (bool addSuccess, string addMessage) = await vodDomainService.AddVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.Select(e => e.Id).ToArray());
             if (!addSuccess)
             {
                 return Result.Error(addMessage);
@@ -55,8 +61,8 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            VodVideo vodVideo = new VodVideo(vodVideoDto.Id, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile);
-            (bool updateSuccess, string updateMessage) =await vodDomainService.UpdateVodVideoAsync(vodVideo);
+            VodVideo vodVideo = new VodVideo(vodVideoDto.Id, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile, vodVideoDto.VideoStatus);
+            (bool updateSuccess, string updateMessage) = await vodDomainService.UpdateVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.Select(e => e.Id).ToArray());
             if (!updateSuccess)
             {
                 return Result.Error(updateMessage);
@@ -69,14 +75,14 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("GetVodVideo")]
-        public async Task<ActionResult<Result>> GetVodVideo([FromQuery]Guid id)
+        public async Task<ActionResult<Result>> GetVodVideo([FromQuery] Guid id)
         {
-            VodVideo? video=await vodDomainService.GetVodVideoByIdAsync(id);
+            VodVideo? video = await vodDomainService.GetVodVideoByIdAsync(id);
             if (video == null)
             {
                 return Result.DataQueryFailed;
             }
-            VodVideoDto videoDto=new VodVideoDto(video);
+            VodVideoDto videoDto = new VodVideoDto(video);
             return Result.Ok(videoDto);
         }
         /// <summary>
@@ -85,15 +91,24 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet("GetVodVideoPagingData")]
-        public async Task<ActionResult<Result>> GetVodVideoPagingData([FromQuery]VodVideoPagingDataRequest req)
+        public async Task<ActionResult<Result>> GetVodVideoPagingData([FromQuery] VodVideoPagingDataRequest req)
         {
-            var vr=new VodVideoPagingDataRequestValidator().Validate(req);
+            var vr = new VodVideoPagingDataRequestValidator().Validate(req);
             if (!vr.IsValid)
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            var pagingData=await vodDomainService.GetVodVideoPagingDataAsync(typeof(VodVideoDto),req.PageSize, req.PageIndex,req.ClassifyId);
+
+            IEnumerable<VodVideoDto> vodVideoEnumerable = (await vodDomainService.QueryVodVideoAsync(req.ClassifyId)).Select(e => new VodVideoDto(e));
+            PagingData pagingData = PagingData.Create(vodVideoEnumerable, req.PageSize, req.PageIndex);
             return Result.Ok(pagingData);
+        }
+
+        [HttpGet("TestVodVideo")]
+        public async Task<ActionResult<Result>> TestVodVideo([FromQuery] Guid id)
+        {
+           List<VodVideo>? vodVideo = await vodVideoRepository.Test(id);
+            return Result.Ok(vodVideo);
         }
     }
 }

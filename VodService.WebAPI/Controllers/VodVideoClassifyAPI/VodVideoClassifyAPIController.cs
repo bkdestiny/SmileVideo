@@ -89,7 +89,8 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
             if (!vr.IsValid) { 
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            var pagingData=await vodDomainService.GetVodVideoClassifyPagingDataAsync(typeof(VodVideoClassifyDto),req.PageSize, req.PageIndex);
+            IEnumerable<VodVideoClassifyDto> vodVideoClassifiesEnumerable=(await vodDomainService.QueryVodVideoClassifyAsync(req.classifyType)).Select(e=>new VodVideoClassifyDto(e));
+            PagingData pagingData=PagingData.Create(vodVideoClassifiesEnumerable, req.PageSize, req.PageIndex);
             return Result.Ok(pagingData);
         }
     }

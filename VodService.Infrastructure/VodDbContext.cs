@@ -18,12 +18,14 @@ namespace VodService.Infrastructure
         public DbSet<VodVideoComment> VodVideoComments { get; set; }
         public VodDbContext(DbContextOptions options, IMediator? mediator) : base(options, mediator)
         {
+            
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
             modelBuilder.EnableSoftDeletionGlobalFilter();
+ 
         }
     }
 }

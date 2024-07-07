@@ -66,6 +66,6 @@ namespace Common.DistributeCache
         /// <returns></returns>
         Task<bool> unLockAsync(string key, string token);
 
-        Task<string> StringGetAsync(string key);
+        Task<string?> StringGetAsync(string key);
     }
 }

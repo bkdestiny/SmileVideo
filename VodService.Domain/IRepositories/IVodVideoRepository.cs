@@ -14,8 +14,19 @@ namespace VodService.Domain.IRepositories
 
         void UpdateVodVideo(VodVideo vodVideo);
 
-        IQueryable<VodVideo> VodVideoQueryable();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="classifyId">分类Id</param>
+        /// <returns></returns>
+        Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId);
 
         Task<VodVideo?> FindVodVideoById(Guid id);
+
+        Task BindVodVideoClassify(Guid videoId,Guid classifyIds);
+
+        Task ClearBindVodVideoClassify(Guid id);
+
+        Task<List<VodVideo>?> Test(Guid id);
     }
 }

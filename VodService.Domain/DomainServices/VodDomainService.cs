@@ -1,6 +1,9 @@
 ﻿using Common.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +29,7 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideo"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> AddVodVideoAsync(VodVideo vodVideo)
+        public async Task<(bool,string)> AddVodVideoAsync(VodVideo vodVideo,Guid[] videoClassifyIds)
         {
             List<VodVideo> videoList=await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
             if (videoList.Count>0)
@@ -34,7 +37,12 @@ namespace VodService.Domain.DomainServices
                 //该视频名称已被使用
                 return (false,"该视频名称已被使用"); 
             }
+            //新增视频信息
             await vodVideoRepository.AddVodVideoAsync(vodVideo);
+            //绑定视频分类信息
+            foreach (Guid videoClassifyId in videoClassifyIds) {
+                await vodVideoRepository.BindVodVideoClassify(vodVideo.Id, videoClassifyId);
+            }
             return (true, "新增成功");
         }
         /// <summary>
@@ -42,31 +50,32 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideo"></param>
         /// <returns></returns>
-        public async Task<(bool, string)> UpdateVodVideoAsync(VodVideo vodVideo) {
-            List<VodVideo> videoList = await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
+        public async Task<(bool, string)> UpdateVodVideoAsync(VodVideo vodVideo, Guid[] videoClassifyIds) {
+/*            List<VodVideo> videoList = await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
             if (videoList.Count > 0 && videoList[0].Id!=vodVideo.Id)
             {
                 //该视频名称已被使用
                 return (false, "该视频名称已被使用");
-            }
+            }*/
+            //更新视频信息
             vodVideoRepository.UpdateVodVideo(vodVideo);
+            //清除原本绑定的视频分类
+            await vodVideoRepository.ClearBindVodVideoClassify(vodVideo.Id);
+            //更新视频分类
+            foreach (Guid videoClassifyId in videoClassifyIds) { 
+                await vodVideoRepository.BindVodVideoClassify(vodVideo.Id,videoClassifyId);
+            }
             return (true, "更新成功");
         }
         /// <summary>
-        /// 获取视频分页数据
+        /// 查询视频
         /// </summary>
-        /// <param name="pageSize"></param>
-        /// <param name="pageIndex"></param>
+        /// <param name="classifyId"></param>
         /// <returns></returns>
-        public async Task<PagingData<D>> GetVodVideoPagingDataAsync<D>(D dtoType,int pageSize,int pageIndex,Guid? classifyId)
+        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId)
         {
-            IQueryable<VodVideo> queryable=vodVideoRepository.VodVideoQueryable().Where(e=>!e.IsDeleted);
-            if (classifyId != null)
-            {
-                queryable=queryable.Where(e=>e.VideoClassifies.Any(c=>c.Id==classifyId));
-            }
-            PagingData<D> pagingData=await PagingData<D>.CreateAsync(queryable,dtoType, pageSize, pageIndex);
-            return pagingData; 
+            IEnumerable<VodVideo> enumerable = await vodVideoRepository.QueryVodVideoAsync(classifyId);
+            return enumerable;
         }
         /// <summary>
         /// 根据Id获取视频
@@ -92,10 +101,10 @@ namespace VodService.Domain.DomainServices
         /// <returns></returns>
         public async Task<(bool,string)> AddVodVideoClassifyAsync(VodVideoClassify vodVideoClassify)
         {
-            List<VodVideoClassify> classifyList=await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
+/*            List<VodVideoClassify> classifyList=await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
             if (classifyList.Count > 0) {
                 return (false, "该视频分类名称已被使用");
-            }
+            }*/
             await vodVideoClassifyRepository.AddVodVideoClassifyAsync(vodVideoClassify);
             return (true, "");
         }
@@ -114,14 +123,14 @@ namespace VodService.Domain.DomainServices
             return (true, "更新成功");
         }
         /// <summary>
-        /// 获取视频分类分页数据
+        /// 
         /// </summary>
+        /// <param name="classifyType">分类类型</param>
         /// <returns></returns>
-        public async Task<PagingData<D>> GetVodVideoClassifyPagingDataAsync<D>(D dtoType,int pageSize,int pageIndex)
+        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType)
         {
-            IQueryable<VodVideoClassify> queryable= vodVideoClassifyRepository.VodVideoClassifyfQueryable();
-            PagingData<D> pagingData=await PagingData<D>.CreateAsync(queryable,dtoType, pageSize, pageIndex);
-            return pagingData;
+            IEnumerable<VodVideoClassify> enumerable =await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType);
+            return enumerable;
         }
     }
 }

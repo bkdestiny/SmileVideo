@@ -18,5 +18,12 @@ namespace VodService.Domain.IRepositories
         Task<VodVideoClassify?> FindVodVideoClassifyByIdAsync(Guid id);
 
         Task<List<VodVideoClassify>> FindVodVideoClassifyByClassifyNameAsync(string name);
+
+        /// <summary>
+        /// 分类类型
+        /// </summary>
+        /// <param name="classifyType"></param>
+        /// <returns></returns>
+        Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType);
     }
 }

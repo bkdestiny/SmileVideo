@@ -42,5 +42,10 @@ namespace VodService.Infrastructure.Repositories
         {
             return vodDbContext.VodVideoClassifies;
         }
+
+        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType)
+        {
+            return await vodDbContext.VodVideoClassifies.Where(e => classifyType!=null?e.ClassifyType == classifyType:1==1).ToListAsync();
+        }
     }
 }

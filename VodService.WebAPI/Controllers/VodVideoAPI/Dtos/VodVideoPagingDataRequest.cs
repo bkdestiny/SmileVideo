@@ -8,7 +8,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
 
         public int PageIndex { get; set; } = 1;
 
-        public Guid? ClassifyId { get; set; }
+        public Guid? ClassifyId { get; set; } = Guid.Empty;
     }
     public class VodVideoPagingDataRequestValidator : AbstractValidator<VodVideoPagingDataRequest>
     {

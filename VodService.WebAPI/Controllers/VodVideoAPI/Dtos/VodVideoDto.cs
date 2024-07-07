@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using VodService.Domain.Entities;
+using VodService.WebAPI.Controllers.VodVideoClassifyAPI.Dtos;
 
 namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
 {
@@ -24,6 +25,11 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
 
         public VideoStatuses VideoStatus { get; set; } = VideoStatuses.Private;
 
+        public List<VodVideoClassifyDto> VideoClassifies {  get; set; }
+
+
+        public VodVideoDto() { }
+
         public VodVideoDto(VodVideo vodVideo)
         {
             Id = vodVideo.Id;
@@ -36,6 +42,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
             Profile = vodVideo.Profile;
             CreateTime = vodVideo.CreateTime;
             VideoStatus = vodVideo.VideoStatus;
+            VideoClassifies = vodVideo.VideoClassifies.Select(e => new VodVideoClassifyDto(e)).ToList();
         }
     }
 

@@ -28,7 +28,7 @@ namespace VodService.Domain.Entities
         public List<VodVideo> Videos { get; set; } = new List<VodVideo>();
 
         private VodVideoClassify() { }
-        public VodVideoClassify(Guid id,string classifyName, ClassifyTypes classifyType, int sortIndex = 999)
+        public VodVideoClassify(Guid id,string classifyName, ClassifyTypes classifyType=ClassifyTypes.Type, int sortIndex = 999)
         {
             Id=id==Guid.Empty? Guid.NewGuid(): id;
             ClassifyName = classifyName;

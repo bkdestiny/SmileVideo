@@ -92,8 +92,15 @@ namespace Common.DistributeCache
             string jsonStr = JsonSerializer.Serialize(value, typeof(T));
             await GetDatabase().StringSetAsync(key, jsonStr, TimeSpan.FromSeconds(expireSeconds));
         }
-
-        public async Task<bool> tryLockAsync(string key,string token, int expireSeconds, int waitSeconds)
+        /// <summary>
+        /// 尝试获取锁
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="token"></param>
+        /// <param name="expireSeconds">锁自动过期时间</param>
+        /// <param name="waitSeconds">等待获取锁的时间 值为0时则只尝试获取一次</param>
+        /// <returns></returns>
+        public async Task<bool> tryLockAsync(string key,string token, int expireSeconds, int waitSeconds=0)
         {
 /*            string tryLockScript= "local val=redis.call('exists','"+key+"')\n"+
             " if val==0 then\n" +
@@ -123,7 +130,15 @@ namespace Common.DistributeCache
             while (waitSeconds!=0&&DateTime.Now.Ticks<endTime);
             return false;
         }
-        public async Task<bool> LockAsync(string key, string token, int expireSeconds, int waitSeconds)
+        /// <summary>
+        /// 获取锁 并自动续期 小于锁过期时间1/3时刷新过期时间
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="token"></param>
+        /// <param name="expireSeconds">锁自动过期时间<</param>
+        /// <param name="waitSeconds">等待获取锁的时间 值为0时则只尝试获取一次</param>
+        /// <returns></returns>
+        public async Task<bool> LockAsync(string key, string token, int expireSeconds, int waitSeconds=0)
         {
             string tryLockScript = "local r1=redis.call('exists',@key);" +
             " if r1==0 then" +
@@ -149,7 +164,12 @@ namespace Common.DistributeCache
             while (waitSeconds != 0 && DateTime.Now.Ticks < endTime);
             return false;
         }
-
+        /// <summary>
+        /// 释放锁
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<bool> unLockAsync(string key, string token)
         {
             string unLockScript = "local token=redis.call('get',@key);" +
@@ -163,7 +183,7 @@ namespace Common.DistributeCache
         }
 
 
-        public async Task<string> StringGetAsync(string key)
+        public async Task<string?> StringGetAsync(string key)
         {
             return await GetDatabase().StringGetAsync(key);
         }

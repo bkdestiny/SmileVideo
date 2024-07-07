@@ -14,14 +14,12 @@ using Common.DistributeCache;
 using Common.Filters;
 using DotNetCore.CAP;
 using AspNetCoreRateLimit;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Exceptionless;
-using Exceptionless.Logging;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Common.Sms;
 using Common.MediatR;
+using Common.Models;
 namespace Initializer
 {
     public static class WebApplicationBuilderExtensions
@@ -56,10 +54,10 @@ namespace Initializer
                     Log.Logger = new LoggerConfiguration().
                     MinimumLevel.Information().
                     WriteTo.File(initOptions.LogFilePath,//写入文件
-                    rollingInterval:RollingInterval.Day, //日志按天保存
-                    rollOnFileSizeLimit:true, //限制单个文件的最大长度
-                    fileSizeLimitBytes:1*1024*1024, //单个文件最大长度 byte
-                    encoding:System.Text.Encoding.UTF8, //文件字符编码
+                    rollingInterval: RollingInterval.Day, //日志按天保存
+                    rollOnFileSizeLimit: true, //限制单个文件的最大长度
+                    fileSizeLimitBytes: 1 * 1024 * 1024, //单个文件最大长度 byte
+                    encoding: System.Text.Encoding.UTF8, //文件字符编码
                     retainedFileCountLimit: 10 //最大保存文件数
                     ).
                     WriteTo.Exceptionless().//写入Exceptionless
@@ -78,7 +76,15 @@ namespace Initializer
                     //如果放到UserSecrets中，每个项目都要配置，很麻烦
                     //因此这里推荐放到环境变量中。
                     ctx.UseSqlServer(connStr);
+                    
                 }, assemblies);
+                #endregion
+
+                #region 解决json套娃递归问题报错 System.Text.Json配置处理套娃递归的方式为忽略
+                services.AddControllersWithViews().AddJsonOptions(options => {
+                    //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
                 #endregion
 
                 #region 认证授权
@@ -100,19 +106,21 @@ namespace Initializer
                 #region 全局拦截器注册
                 builder.Services.AddMvc(opt =>
                 {
-                    opt.Filters.Add<IdempotentFilter>();//幂等性拦截
+                    opt.Filters.Add<IdempotentFilter>();//幂等性拦截器 [IdempotentAttribute]
                     opt.Filters.Add<LoggingFiliter>();
-                    opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截
-                    opt.Filters.Add<UnitOfWorkFilter>();//工作单元
+                    opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截器
+                    opt.Filters.Add<UnitOfWorkFilter>();//工作单元 [UnitOfWorkAttribute]
                 });
                 #endregion
 
+                #region 注册FluentValidation 数据校验
                 //FluentValidation.AspNetCore Begin
                 //不使用内置的数据校验,使用第三方的FluentValidation
                 //builder.Services.AddFluentValidationAutoValidation(); //不开启自动校验,手动校验和处理返回数据
                 builder.Services.AddFluentValidationClientsideAdapters();
                 builder.Services.AddValidatorsFromAssemblies(assemblies);
                 //FluentValidation.AspNetCore End
+                #endregion
 
                 #region 解决跨域问题
                 //Cors 配置前端的url
@@ -203,11 +211,13 @@ namespace Initializer
             }
             catch (NullReferenceException e1)
             {
-                throw new Exception("缺少相关配置");
+                Console.WriteLine("系统初始化失败,请检查相关配置");
+                throw new CommonException("系统初始化失败,请检查相关配置");
             }
             catch (Exception e2)
             {
-                throw new Exception("系统初始化失败,请检查相关配置");
+                Console.WriteLine(e2.Message);
+                throw new CommonException(e2.Message);
             }
         }
     }

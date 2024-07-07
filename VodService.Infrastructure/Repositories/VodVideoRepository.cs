@@ -25,9 +25,22 @@ namespace VodService.Infrastructure.Repositories
             await vodDbContext.VodVideos.AddAsync(vodVideo);
         }
 
+        public async Task BindVodVideoClassify(Guid videoId,Guid classifyId)
+        {
+            VodVideo vodVideo=await vodDbContext.VodVideos.SingleAsync(v=>v.Id==videoId);
+            VodVideoClassify vodVideoClassify = await vodDbContext.VodVideoClassifies.SingleAsync(c => c.Id == classifyId);
+            vodVideo.VideoClassifies.Add(vodVideoClassify);
+        }
+
+        public async Task ClearBindVodVideoClassify(Guid id)
+        {
+            VodVideo video=await vodDbContext.VodVideos.SingleAsync(v => v.Id == id);
+            video.VideoClassifies.Clear();
+        }
+
         public async Task<VodVideo?> FindVodVideoById(Guid id)
         {
-            return await vodDbContext.VodVideos.Where(v => v.Id == id && !v.IsDeleted).SingleOrDefaultAsync();
+            return await vodDbContext.VodVideos.Where(v => v.Id == id && !v.IsDeleted).FirstOrDefaultAsync();
         }
 
         public async Task<List<VodVideo>> FindVodVideoByVideoNameAsync(string videoName)
@@ -40,9 +53,15 @@ namespace VodService.Infrastructure.Repositories
             vodDbContext.Update(vodVideo);
         }
 
-        public IQueryable<VodVideo> VodVideoQueryable()
+        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId)
         {
-            return vodDbContext.VodVideos;
+            return await vodDbContext.VodVideos
+                .Where(e =>classifyId != Guid.Empty&&classifyId!=null ? e.VideoClassifies.Any(c => c.Id == classifyId) : 1 == 1)
+                .Include(e => e.VideoClassifies).ToListAsync();
+        }
+        public async Task<List<VodVideo>?> Test(Guid id)
+        {
+            return await vodDbContext.VodVideos.Where(e => e.VideoClassifies.Any(c => c.Id == id)).Include(e => e.VideoClassifies).ToListAsync();
         }
     }
 }
