@@ -11,6 +11,7 @@ namespace VodService.WebAPI
         {
             services.AddScoped<IVodVideoRepository,VodVideoRepository>();
             services.AddScoped<IVodVideoClassifyRepository,VodVideoClassifyRepository>();
+            services.AddScoped<IVodVideoPartRepository,VodVideoPartRepository>();
             services.AddScoped<VodDomainService>();
         }
     }

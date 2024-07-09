@@ -1,5 +1,6 @@
 ﻿using FileService.Domain.Entites;
 using FileService.Domain.IRepositories;
+using MediatR.NotificationPublishers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,11 @@ namespace FileService.Infrastructure.Repositories
         public async Task<SysFile?> FindSysFileById(Guid id)
         {
             return await sysFileDbContext.SysFiles.Where(f=>f.Id == id).FirstOrDefaultAsync<SysFile>();
+        }
+
+        public async Task<IEnumerable<SysFile>> QuerySysFileAsync(Guid[] ids)
+        {
+            return await sysFileDbContext.SysFiles.Where(f=>ids.Contains(f.Id)).ToListAsync();
         }
     }
 }

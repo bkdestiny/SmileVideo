@@ -102,5 +102,14 @@ namespace FileService.Domain.DomainServices
             }
             return sysFile.RemoteUrl;
         }
+        /// <summary>
+        /// 查询系统文件
+        /// </summary>
+        /// <param name="fileIds"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<SysFile>> QuerySysFileAsync(Guid[] fileIds)
+        {
+            return await sysFileRepository.QuerySysFileAsync(fileIds);
+        }
     }
 }

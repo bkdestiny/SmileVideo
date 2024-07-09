@@ -67,7 +67,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("GetVodVideoClassify")]
         public async Task<ActionResult<Result>> GetVodVideoClassify(Guid id)
         {
             VodVideoClassify? vodVideoClassify=await vodDomainService.GetVodVideoClassifyByIdAsync(id);
@@ -83,9 +83,9 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet("GetVodVideoClassifyPagingData")]
-        public async Task<ActionResult<Result>> GetVodVideoClassifyPagingData([FromQuery]VodVideoClassifyPagingDataRequest req)
+        public async Task<ActionResult<Result>> GetVodVideoClassifyPagingData([FromQuery]GetVodVideoClassifyPagingDataRequest req)
         {
-            var vr=new VodVideoClassifyPagingDataRequestValidator().Validate(req);
+            var vr=new GetVodVideoClassifyPagingDataRequestValidator().Validate(req);
             if (!vr.IsValid) { 
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }

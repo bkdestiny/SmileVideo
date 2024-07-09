@@ -27,20 +27,23 @@ namespace VodService.Infrastructure.Repositories
 
         public async Task BindVodVideoClassify(Guid videoId,Guid classifyId)
         {
-            VodVideo vodVideo=await vodDbContext.VodVideos.SingleAsync(v=>v.Id==videoId);
-            VodVideoClassify vodVideoClassify = await vodDbContext.VodVideoClassifies.SingleAsync(c => c.Id == classifyId);
-            vodVideo.VideoClassifies.Add(vodVideoClassify);
+            VodVideo? vodVideo=await vodDbContext.VodVideos.Include(v=>v.VideoClassifies).FirstOrDefaultAsync(v=>v.Id==videoId);
+            VodVideoClassify? vodVideoClassify = await vodDbContext.VodVideoClassifies.FirstOrDefaultAsync(c => c.Id == classifyId);
+            if (vodVideo != null && vodVideoClassify != null) {
+                vodVideo.VideoClassifies.Add(vodVideoClassify);
+            }
+            
         }
 
         public async Task ClearBindVodVideoClassify(Guid id)
         {
-            VodVideo video=await vodDbContext.VodVideos.SingleAsync(v => v.Id == id);
+            VodVideo video=await vodDbContext.VodVideos.Include(v=>v.VideoClassifies).SingleAsync(v => v.Id == id);
             video.VideoClassifies.Clear();
         }
 
         public async Task<VodVideo?> FindVodVideoById(Guid id)
         {
-            return await vodDbContext.VodVideos.Where(v => v.Id == id && !v.IsDeleted).FirstOrDefaultAsync();
+            return await vodDbContext.VodVideos.Where(v => v.Id == id && !v.IsDeleted).Include(v=>v.VideoClassifies).FirstOrDefaultAsync();
         }
 
         public async Task<List<VodVideo>> FindVodVideoByVideoNameAsync(string videoName)

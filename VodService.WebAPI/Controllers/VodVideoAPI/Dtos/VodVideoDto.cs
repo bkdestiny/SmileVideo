@@ -9,7 +9,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
         public Guid Id { get; set; }
         public string VideoName { get; set; }
 
-        public Guid? CoverFile { get; set; } = new Guid();
+        public Guid? CoverFile { get; set; } = Guid.Empty;
 
         public string? Performers { get; set; } = "";
 
@@ -24,9 +24,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
         public DateTime CreateTime {  get; set; }
 
         public VideoStatuses VideoStatus { get; set; } = VideoStatuses.Private;
-
-        public List<VodVideoClassifyDto> VideoClassifies {  get; set; }
-
+        public List<Guid> VideoClassifies { get; set; }=new List<Guid>();
 
         public VodVideoDto() { }
 
@@ -42,7 +40,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
             Profile = vodVideo.Profile;
             CreateTime = vodVideo.CreateTime;
             VideoStatus = vodVideo.VideoStatus;
-            VideoClassifies = vodVideo.VideoClassifies.Select(e => new VodVideoClassifyDto(e)).ToList();
+            VideoClassifies=vodVideo.VideoClassifies.Select(c=>c.Id).ToList();
         }
     }
 

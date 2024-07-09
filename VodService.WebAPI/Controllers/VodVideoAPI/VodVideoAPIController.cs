@@ -41,7 +41,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
             VodVideo vodVideo = new VodVideo(Guid.Empty, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile, vodVideoDto.VideoStatus);
-            (bool addSuccess, string addMessage) = await vodDomainService.AddVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.Select(e => e.Id).ToArray());
+            (bool addSuccess, string addMessage) = await vodDomainService.AddVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.ToArray());
             if (!addSuccess)
             {
                 return Result.Error(addMessage);
@@ -62,7 +62,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
             VodVideo vodVideo = new VodVideo(vodVideoDto.Id, vodVideoDto.VideoName, vodVideoDto.CoverFile, vodVideoDto.Performers, vodVideoDto.Director, vodVideoDto.Scriptwriter, vodVideoDto.Description, vodVideoDto.Profile, vodVideoDto.VideoStatus);
-            (bool updateSuccess, string updateMessage) = await vodDomainService.UpdateVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.Select(e => e.Id).ToArray());
+            (bool updateSuccess, string updateMessage) = await vodDomainService.UpdateVodVideoAsync(vodVideo, vodVideoDto.VideoClassifies.ToArray());
             if (!updateSuccess)
             {
                 return Result.Error(updateMessage);
@@ -91,9 +91,9 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet("GetVodVideoPagingData")]
-        public async Task<ActionResult<Result>> GetVodVideoPagingData([FromQuery] VodVideoPagingDataRequest req)
+        public async Task<ActionResult<Result>> GetVodVideoPagingData([FromQuery] GetVodVideoPagingDataRequest req)
         {
-            var vr = new VodVideoPagingDataRequestValidator().Validate(req);
+            var vr = new GetVodVideoPagingDataRequestValidator().Validate(req);
             if (!vr.IsValid)
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);

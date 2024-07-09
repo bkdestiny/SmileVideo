@@ -19,10 +19,14 @@ namespace VodService.Domain.DomainServices
 
         private readonly IVodVideoClassifyRepository vodVideoClassifyRepository;
 
-        public VodDomainService(IVodVideoRepository vodVideoRepository, IVodVideoClassifyRepository vodVideoClassifyRepository)
+        private readonly IVodVideoPartRepository vodVideoPartRepository;
+
+
+        public VodDomainService(IVodVideoRepository vodVideoRepository, IVodVideoClassifyRepository vodVideoClassifyRepository, IVodVideoPartRepository vodVideoPartRepository)
         {
             this.vodVideoRepository = vodVideoRepository;
             this.vodVideoClassifyRepository = vodVideoClassifyRepository;
+            this.vodVideoPartRepository = vodVideoPartRepository;
         }
         /// <summary>
         /// 新增视频
@@ -114,16 +118,16 @@ namespace VodService.Domain.DomainServices
         /// <param name="vodVideoClassify"></param>
         /// <returns></returns>
         public async Task<(bool,string)> UpdateVodVideoClassifyAsync(VodVideoClassify vodVideoClassify) {
-            List<VodVideoClassify> classifyList = await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
+/*            List<VodVideoClassify> classifyList = await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
             if (classifyList.Count > 0 && classifyList[0].Id!=vodVideoClassify.Id)
             {
                 return (false, "该视频分类名称已被使用");
-            }
+            }*/
             vodVideoClassifyRepository.UpdateVodVideoClassify(vodVideoClassify);
             return (true, "更新成功");
         }
         /// <summary>
-        /// 
+        /// 查询视频分类
         /// </summary>
         /// <param name="classifyType">分类类型</param>
         /// <returns></returns>
@@ -131,6 +135,46 @@ namespace VodService.Domain.DomainServices
         {
             IEnumerable<VodVideoClassify> enumerable =await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType);
             return enumerable;
+        }
+        /// <summary>
+        /// 新增视频片段
+        /// </summary>
+        /// <param name="vodVideoPart"></param>
+        /// <returns></returns>
+        public async Task<(bool,string)> AddVodVideoPartAsync(Guid videoId,VodVideoPart vodVideoPart)
+        {
+            VodVideo? video=await vodVideoRepository.FindVodVideoById(videoId);
+            if (video == null) {
+                return (false, "视频不存在");
+            }
+            vodVideoPart.Video = video;
+            await vodVideoPartRepository.AddVodVideoPartAsync(vodVideoPart);
+            return (true, "");
+        }
+        /// <summary>
+        /// 更新视频片段
+        /// </summary>
+        /// <param name="vodVideoPart"></param>
+        /// <returns></returns>
+        public (bool,string) UpdateVodVideoPart(VodVideoPart vodVideoPart)
+        {
+            vodVideoPartRepository.UpdateVodVideoPart(vodVideoPart);
+            return (true, "");
+        }
+        /// <summary>
+        /// 查询视频片段
+        /// </summary>
+        /// <param name="videoId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId)
+        {
+            return await vodVideoPartRepository.QueryVodVideoPartAsync(videoId);
+        }
+
+        public async Task<VodVideoPart?> GetVodVideoPartAsync(Guid id)
+        {
+            VodVideoPart? part=await vodVideoPartRepository.GetVodVideoPartByIdAsync(id);
+            return part;
         }
     }
 }

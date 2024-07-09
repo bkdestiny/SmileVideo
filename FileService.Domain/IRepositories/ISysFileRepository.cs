@@ -18,7 +18,7 @@ namespace FileService.Domain.IRepositories
         Task<SysFile?> FindSysFileByFileSHA56HashAndFileSizeAsync(string fileSHA256Hash, long fileSize);
 
         /// <summary>
-        /// 新增SysFile
+        /// 新增文件
         /// </summary>
         /// <param name="sysFile"></param>
         /// <returns></returns>
@@ -30,5 +30,11 @@ namespace FileService.Domain.IRepositories
         /// <param name="id"></param>
         /// <returns></returns>
         Task<SysFile?> FindSysFileById(Guid id);
+        /// <summary>
+        /// 查询文件
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        Task<IEnumerable<SysFile>> QuerySysFileAsync(Guid[] ids);
     }
 }

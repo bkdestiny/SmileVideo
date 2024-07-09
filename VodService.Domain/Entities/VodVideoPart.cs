@@ -30,9 +30,9 @@ namespace VodService.Domain.Entities
         public DateTime ReleaseTime { get; set; }
 
         /// <summary>
-        /// 是否公开该片段
+        /// 片段状态
         /// </summary>
-        public bool IsPublic { get; set; } = true;
+        public PartStatuses PartStatus { get; set; } = PartStatuses.Public;
 
         /// <summary>
         /// 排序
@@ -40,14 +40,18 @@ namespace VodService.Domain.Entities
         public int SortIndex { get; set ; }
 
         private VodVideoPart() { }
-        public VodVideoPart(string partName, VodVideo video, Guid partFile, DateTime releaseTime, bool isPublic=true, int sortIndex=999)
+        public VodVideoPart(Guid id,string partName, Guid? partFile, DateTime releaseTime, PartStatuses partStatuses, int sortIndex=999)
         {
+            Id = id == Guid.Empty ? Guid.NewGuid() : id;
             PartName = partName;
-            Video = video;
             PartFile = partFile;
             ReleaseTime = releaseTime;
-            IsPublic = isPublic;
+            PartStatus = partStatuses;
             SortIndex = sortIndex;
+        }
+        public enum PartStatuses
+        {
+            Public,Private
         }
     }
 }
