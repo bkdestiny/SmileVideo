@@ -26,16 +26,16 @@ namespace Common.Filters
             //try to get UnitOfWorkAttribute from controller,
             //if there is no UnitOfWorkAttribute on controller, 
             //try to get UnitOfWorkAttribute from action
-            var uowAttr = caDesc.ControllerTypeInfo
-                .GetCustomAttribute<UnitOfWorkAttribute>();
+            var uowAttr = caDesc.MethodInfo
+                    .GetCustomAttribute<UnitOfWorkAttribute>();
             if (uowAttr != null)
             {
                 return uowAttr;
             }
             else
             {
-                return caDesc.MethodInfo
-                    .GetCustomAttribute<UnitOfWorkAttribute>();
+                return caDesc.ControllerTypeInfo
+                .GetCustomAttribute<UnitOfWorkAttribute>(); 
             }
         }
         public async Task OnActionExecutionAsync(ActionExecutingContext context,
@@ -47,25 +47,52 @@ namespace Common.Filters
                 await next();
                 return;
             }
-            using TransactionScope txScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            List<DbContext> dbCtxs = new List<DbContext>();
-            foreach (var dbCtxType in uowAttr.DbContextTypes)
-            {
-                //用HttpContext的RequestServices
-                //确保获取的是和请求相关的Scope实例
-                var sp = context.HttpContext.RequestServices;
-                DbContext dbCtx = (DbContext)sp.GetRequiredService(dbCtxType);
-                dbCtxs.Add(dbCtx);
-            }
-            var result = await next();
-            if (result.Exception == null)
-            {
-                foreach (var dbCtx in dbCtxs)
+            if (uowAttr.EnableTransaction) {
+                //开启事务
+                using TransactionScope txScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                List<DbContext> dbCtxs = new List<DbContext>();
+                foreach (var dbCtxType in uowAttr.DbContextTypes)
                 {
-                    await dbCtx.SaveChangesAsync();
+                    //用HttpContext的RequestServices
+                    //确保获取的是和请求相关的Scope实例
+                    var sp = context.HttpContext.RequestServices;
+                    DbContext dbCtx = (DbContext)sp.GetRequiredService(dbCtxType);
+                    //dbCtx.Database.SetCommandTimeout(TimeSpan.FromSeconds(uowAttr.CommandTimeOut));
+                    dbCtxs.Add(dbCtx);
                 }
-                txScope.Complete();
+                var result = await next();
+                if (result.Exception == null)
+                {
+                    foreach (var dbCtx in dbCtxs)
+                    {
+                        await dbCtx.SaveChangesAsync();
+                    }
+                    txScope.Complete();
+                }
             }
+            else
+            {
+                //不开启事务
+                List<DbContext> dbCtxs = new List<DbContext>();
+                foreach (var dbCtxType in uowAttr.DbContextTypes)
+                {
+                    //用HttpContext的RequestServices
+                    //确保获取的是和请求相关的Scope实例
+                    var sp = context.HttpContext.RequestServices;
+                    DbContext dbCtx = (DbContext)sp.GetRequiredService(dbCtxType);
+                    //dbCtx.Database.SetCommandTimeout(TimeSpan.FromSeconds(uowAttr.CommandTimeOut));
+                    dbCtxs.Add(dbCtx);
+                }
+                var result = await next();
+                if (result.Exception == null)
+                {
+                    foreach (var dbCtx in dbCtxs)
+                    {
+                        await dbCtx.SaveChangesAsync();
+                    }
+                }
+            }
+            
         }
     }
 }

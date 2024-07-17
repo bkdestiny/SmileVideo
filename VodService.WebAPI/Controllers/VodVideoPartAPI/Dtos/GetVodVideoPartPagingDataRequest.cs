@@ -8,6 +8,8 @@ namespace VodService.WebAPI.Controllers.VodVideoPartAPI.Dtos
 
         public int PageIndex { get; set; } = 1;
 
+        public string? SearchText { get; set; }
+
         public Guid VideoId { get; set; }
     }
     public class GetVodVideoPartPagingDataRequestValidator : AbstractValidator<GetVodVideoPartPagingDataRequest>

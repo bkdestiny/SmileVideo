@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.EFcore.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,8 @@ namespace VodService.Domain.IRepositories
         /// </summary>
         /// <param name="classifyType"></param>
         /// <returns></returns>
-        Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType);
+        Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType,string? searchText);
+
+        Task RemoveVodVideoClassifyByIdAsync(Guid id);
     }
 }

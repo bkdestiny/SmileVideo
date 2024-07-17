@@ -10,8 +10,14 @@ namespace Common.Attributes
     public class UnitOfWorkAttribute : Attribute
     {
         public Type[] DbContextTypes { get; init; }
-        public UnitOfWorkAttribute(params Type[] dbContextTypes)
+
+        public int CommandTimeOut { get; init; }
+
+        public bool EnableTransaction {  get; init; }
+        public UnitOfWorkAttribute(Type[] dbContextTypes,bool enableTransaction=true, int commandTimeOut = 30)
         {
+            this.EnableTransaction= enableTransaction;
+            this.CommandTimeOut= commandTimeOut;
             this.DbContextTypes = dbContextTypes;
             foreach (var type in dbContextTypes)
             {

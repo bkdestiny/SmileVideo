@@ -76,14 +76,17 @@ namespace Initializer
                     //如果放到UserSecrets中，每个项目都要配置，很麻烦
                     //因此这里推荐放到环境变量中。
                     ctx.UseSqlServer(connStr);
-                    
                 }, assemblies);
                 #endregion
 
                 #region 解决json套娃递归问题报错 System.Text.Json配置处理套娃递归的方式为忽略
-                services.AddControllersWithViews().AddJsonOptions(options => {
+/*                services.AddControllersWithViews().AddJsonOptions(options => {
                     //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });*/
+                services.ConfigureHttpJsonOptions(options =>
+                {
+                    options.SerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                 });
                 #endregion
 
@@ -129,8 +132,12 @@ namespace Initializer
                     //更好的在Program.cs中用绑定方式读取配置的方法：https://github.com/dotnet/aspnetcore/issues/21491
                     //不过比较麻烦。
                     string? corsOptions = configuration.GetSection("CorsOrigins").Value;
-                    options.AddDefaultPolicy(builder => builder.WithOrigins(corsOptions.Split(",",StringSplitOptions.RemoveEmptyEntries))
+                    options.AddDefaultPolicy(builder => builder.WithOrigins(corsOptions.Split(",", StringSplitOptions.RemoveEmptyEntries))
                             .AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+/*                    options.AddPolicy("AllowSwagger", builder =>
+                    {
+                        builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                    });*/
                 });
                 #endregion
 

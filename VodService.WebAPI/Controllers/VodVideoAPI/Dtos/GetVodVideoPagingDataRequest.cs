@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using VodService.Domain.Entities;
 
 namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
 {
@@ -8,7 +9,11 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI.Dtos
 
         public int PageIndex { get; set; } = 1;
 
-        public Guid? ClassifyId { get; set; } = Guid.Empty;
+        public List<Guid> ClassifyIds { get; set; } = new List<Guid>();
+
+        public VideoStatuses? VideoStatus { get; set; }
+
+        public string? SearchText { get; set; }
     }
     public class GetVodVideoPagingDataRequestValidator : AbstractValidator<GetVodVideoPagingDataRequest>
     {

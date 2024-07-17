@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Common.EFcore.Models;
+using FluentValidation;
 using VodService.Domain.Entities;
 
 namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI.Dtos
@@ -9,6 +10,9 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI.Dtos
 
         public int PageIndex { get; set; } = 1;
 
+        public string? SearchText { get; set; }
+
+        public SortOrders? SortOrderOfSortIndex {  get; set; }
         public ClassifyTypes? classifyType {  get; set; }
     }
     public class GetVodVideoClassifyPagingDataRequestValidator : AbstractValidator<GetVodVideoClassifyPagingDataRequest>

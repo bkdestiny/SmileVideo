@@ -2,6 +2,7 @@
 using FileService.Domain.IStorage;
 using FileService.Infrastructure.Storage;
 using Initializer;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace FileService.WebAPI
 {
@@ -13,6 +14,11 @@ namespace FileService.WebAPI
 
             // Add services to the container.
             IConfiguration configuration = builder.Configuration;
+
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 3_1024_1024_1024; // 设置文件上传大小限制为 3 GB
+            });
 
             #region 通常服务注册
             builder.ConfigureExtraServices(new InitializerOptions

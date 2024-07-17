@@ -1,5 +1,6 @@
 ﻿using Common.Attributes;
 using Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
 {
     [Route("VodVideo")]
     [ApiController]
-    [UnitOfWork(typeof(VodDbContext))]
+    [UnitOfWork([typeof(VodDbContext)])]
     public class VodVideoAPIController : ControllerBase
     {
         private readonly VodDomainService vodDomainService;
@@ -33,6 +34,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <returns></returns>
         [HttpPost("AddVodVideo")]
         [Idempotent]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> AddVodVideo(VodVideoDto vodVideoDto)
         {
             var vr = new VodVideoDtoValidator().Validate(vodVideoDto);
@@ -54,6 +56,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
         /// <param name="vodVideoDto"></param>
         /// <returns></returns>
         [HttpPost("UpdateVodVideo")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> UpdateVodVideo(VodVideoDto vodVideoDto)
         {
             var vr = new VodVideoDtoValidator().Validate(vodVideoDto);
@@ -99,16 +102,21 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
 
-            IEnumerable<VodVideoDto> vodVideoEnumerable = (await vodDomainService.QueryVodVideoAsync(req.ClassifyId)).Select(e => new VodVideoDto(e));
+            IEnumerable<VodVideoDto> vodVideoEnumerable = (await vodDomainService.QueryVodVideoAsync(req.ClassifyIds,req.VideoStatus,req.SearchText)).Select(e => new VodVideoDto(e));
             PagingData pagingData = PagingData.Create(vodVideoEnumerable, req.PageSize, req.PageIndex);
             return Result.Ok(pagingData);
         }
-
-        [HttpGet("TestVodVideo")]
-        public async Task<ActionResult<Result>> TestVodVideo([FromQuery] Guid id)
+        /// <summary>
+        /// 删除视频
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        [HttpPost("RemoveVodVideo")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result>> RemoveVodVideo(List<Guid> ids)
         {
-           List<VodVideo>? vodVideo = await vodVideoRepository.Test(id);
-            return Result.Ok(vodVideo);
+            await vodDomainService.RemoveVodVideoAsync(ids.ToArray());
+            return Result.Ok();
         }
     }
 }

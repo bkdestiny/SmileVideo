@@ -19,7 +19,7 @@ namespace VodService.Domain.IRepositories
         /// </summary>
         /// <param name="classifyId">分类Id</param>
         /// <returns></returns>
-        Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId);
+        Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds,VideoStatuses? videoStatus,string? searchText);
 
         Task<VodVideo?> FindVodVideoById(Guid id);
 
@@ -28,5 +28,7 @@ namespace VodService.Domain.IRepositories
         Task ClearBindVodVideoClassify(Guid id);
 
         Task<List<VodVideo>?> Test(Guid id);
+
+        Task DeleteVodVideoByIdAsync(Guid id);
     }
 }

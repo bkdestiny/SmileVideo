@@ -62,8 +62,76 @@ namespace FileService.Infrastructure.Storage
             {
                 COSXML.Transfer.COSXMLUploadTask.UploadTaskResult result = await transferManager.UploadAsync(uploadTask);
                 //生成文件Url
-                string url=cosXml.GetObjectUrl(bucket,key);
+                string url = cosXml.GetObjectUrl(bucket, key);
                 return new Uri(url);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<Uri> SaveHlsAsync(string prefixKey, string srcPath)
+        {
+            if (!Directory.Exists(srcPath))
+            {
+                throw new Exception(srcPath + "不存在或者不是一个文件夹");
+            }
+            IEnumerable<string> files = Directory.GetFiles(srcPath);
+            string? m3u8FilePath = files.Where(f => f.IndexOf(".m3u8") != -1).FirstOrDefault();
+            List<string> tsFilePathList = files.Where(f => f.IndexOf(".ts") != -1).ToList();
+            if (string.IsNullOrEmpty(m3u8FilePath) || tsFilePathList.Count == 0)
+            {
+                throw new Exception(srcPath + "不存在.m3u8文件或.ts文件");
+            }
+            // 初始化 TransferConfig
+            TransferConfig transferConfig = new TransferConfig();
+            // 初始化 TransferManager
+            TransferManager transferManager = new TransferManager(cosXml, transferConfig);
+            String bucket = options.buckets.Default; //存储桶，格式：BucketName-APPID
+            // 上传对象
+            try
+            {
+                //1.上传M3u8
+                string m3u8FileName = new FileInfo(m3u8FilePath).Name;
+                string m3u8FileKey = prefixKey + "/" + m3u8FileName;
+                COSXMLUploadTask uploadM3u8Task = new COSXMLUploadTask(bucket, m3u8FileKey);
+                uploadM3u8Task.SetSrcPath(m3u8FilePath);
+                COSXML.Transfer.COSXMLUploadTask.UploadTaskResult result = await transferManager.UploadAsync(uploadM3u8Task);
+                uploadM3u8Task.progressCallback = delegate (long completed, long total)
+                {
+                    Console.WriteLine(String.Format(m3u8FileName+":上传进度 = {0:##.##}%", completed * 100.0 / total));
+                };
+                if (!result.IsSuccessful())
+                {
+                    throw new Exception(".m3u8文件上传Cos失败,"+result.httpMessage);
+                }
+                Console.WriteLine(String.Format(m3u8FileName + ":上传完成"));
+                //生成文件Url
+                string m3u8Url = cosXml.GetObjectUrl(bucket, m3u8FileKey);
+
+                int tsCount = tsFilePathList.Count;
+                int tsIndex = 0;
+                //2.批量上传ts
+                foreach (string tsFilePath in tsFilePathList)
+                {
+                    tsIndex++;
+                    string tsFileName = new FileInfo(tsFilePath).Name;
+                    string tsFileKey = prefixKey + "/" + tsFileName;
+                    COSXMLUploadTask uploadTsTask = new COSXMLUploadTask(bucket, tsFileKey);
+                    uploadTsTask.SetSrcPath(tsFilePath);
+                    COSXML.Transfer.COSXMLUploadTask.UploadTaskResult uploadTsResult = await transferManager.UploadAsync(uploadTsTask);
+                    uploadTsTask.progressCallback = delegate (long completed, long total)
+                    {
+                        Console.WriteLine(String.Format(m3u8FileName + ":上传进度 = {0:##.##}%,批量上传进度="+tsIndex+"/"+tsCount+"", completed * 100.0 / total));
+                    };
+                    if (!uploadTsResult.IsSuccessful())
+                    {
+                        throw new Exception(".ts文件上传Cos失败,"+uploadTsResult.httpMessage);
+                    }
+                    Console.WriteLine(String.Format(tsFileName + ":上传完成"));
+                }
+                return new Uri(m3u8Url);
             }
             catch (Exception e)
             {

@@ -41,6 +41,7 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
         /// <returns></returns>
         [HttpPost("LoginByUserNameAndPassword")]
         [AllowAnonymous]
+        [Idempotent]
         public async Task<ActionResult<Result>> LoginByUserNameAndPassword(LoginByUserNameAndPasswordRequest req)
         {
             string ipAddress = HttpHelper.GetRemoteIpAddress(HttpContext);
@@ -50,15 +51,6 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
                 return Result.Error("用户名或密码不存在");
             }
             IEnumerable<string> roles = await userManager.GetRolesAsync(user);
-/*            string rolesStr = string.Join(",", roles);
-            List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim("IpAddress", ipAddress));
-            claims.Add(new Claim("Name", user.UserName!));
-            claims.Add(new Claim("Role", rolesStr));
-            claims.Add(new Claim("AuthorizationTime", DateTime.Now.Ticks.ToString()));
-            long expirationTime = DateTime.Now.AddSeconds(jwtOptions.ExpireSeconds).Ticks;
-            claims.Add(new Claim("ExpirationTime", expirationTime.ToString()));
-            string token = JWTHelper.BuildToken(claims, jwtOptions);*/
             string token = JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress, user.Avatar), jwtOptions);
             Result result=Result.Ok("登录成功", token);
             return result;
@@ -119,15 +111,6 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             string token=JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress,user.Avatar),jwtOptions);
             return Result.Ok(token);
 
-        }
-
-
-        [HttpPost("Test")]
-        [AllowAnonymous]
-        public async Task<ActionResult<Result>> Test(string phoneNumber,string verifyCode)
-        {
-            (bool b,string message)=await sms.SendAsync(phoneNumber,sms.GetSmsTemplate().VerifyCode!,sms.GetSmsTemplate().VerifyCodeParam!,verifyCode); 
-            return Result.Ok(message);
         }
 
         

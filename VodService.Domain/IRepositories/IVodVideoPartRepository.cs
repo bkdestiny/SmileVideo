@@ -15,8 +15,10 @@ namespace VodService.Domain.IRepositories
 
         Task<VodVideoPart?> GetVodVideoPartByIdAsync(Guid id);
 
-        Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId);
+        Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId,string? searchText);
 
         Task BindVodVideoAsync(Guid videoId,Guid partId);
+
+        Task RemoveVodVideoPartByIdAsync(Guid id);
     }
 }

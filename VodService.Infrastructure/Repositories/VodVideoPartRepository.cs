@@ -38,9 +38,18 @@ namespace VodService.Infrastructure.Repositories
             return await vodDbContext.VodVideoParts.Include(p=>p.Video).Where(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId)
+        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId, string? searchText)
         {
-            return await vodDbContext.VodVideoParts.Where(p => p.Video.Id == videoId).Include(p=>p.Video).ToListAsync() ;
+            return await vodDbContext.VodVideoParts.Where(p => p.Video.Id == videoId).Where(e=>!string.IsNullOrEmpty(searchText)?e.PartName.Contains(searchText):true).Include(p=>p.Video).ToListAsync() ;
+        }
+
+        public async Task RemoveVodVideoPartByIdAsync(Guid id)
+        {
+            VodVideoPart? videoPart = await vodDbContext.VodVideoParts.SingleOrDefaultAsync(e => e.Id == id);
+            if (videoPart != null)
+            {
+                vodDbContext.VodVideoParts.Remove(videoPart);
+            }
         }
 
         public void UpdateVodVideoPart(VodVideoPart vodVideoPart)

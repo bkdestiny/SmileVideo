@@ -1,5 +1,6 @@
 ﻿using Common.Attributes;
 using Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VodService.Domain.DomainServices;
@@ -11,7 +12,7 @@ namespace VodService.WebAPI.Controllers.VodVideoPartAPI
 {
     [Route("VodVideoPart")]
     [ApiController]
-    [UnitOfWork(typeof(VodDbContext))]
+    [UnitOfWork([typeof(VodDbContext)])]
     public class VodVideoPartAPIController : ControllerBase
     {
         private readonly VodDomainService vodDomainService;
@@ -26,6 +27,7 @@ namespace VodService.WebAPI.Controllers.VodVideoPartAPI
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("AddVodVideoPart")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> AddVodVideoPart(VodVideoPartDto dto)
         {
             var vr=new AddVodVideoPartDtoValidator().Validate(dto);
@@ -45,6 +47,7 @@ namespace VodService.WebAPI.Controllers.VodVideoPartAPI
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("UpdateVodVideoPart")]
+        [Authorize(Roles = "Admin")]
         public ActionResult<Result> UpdateVodVideoPart(VodVideoPartDto dto)
         {
             var vr=new UpdateVodVideoPartDtoValidator().Validate(dto);
@@ -85,9 +88,17 @@ namespace VodService.WebAPI.Controllers.VodVideoPartAPI
             if (!vr.IsValid) {
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            IEnumerable<VodVideoPartDto> enumerable=(await vodDomainService.QueryVodVideoPartAsync(req.VideoId)).Select(p=>new VodVideoPartDto(p)).ToList();
+            IEnumerable<VodVideoPartDto> enumerable=(await vodDomainService.QueryVodVideoPartAsync(req.VideoId,req.SearchText)).Select(p=>new VodVideoPartDto(p)).ToList();
             PagingData pagingData=PagingData.Create(enumerable, req.PageSize, req.PageIndex);
             return Result.Ok(pagingData);   
+        }
+
+        [HttpPost("RemoveVodVideoPart")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result>> RemoveVodVideoPart(List<Guid> ids)
+        {
+            await vodDomainService.RemoveVodVideoPartAsync(ids.ToArray());
+            return Result.Ok();
         }
     }
 }

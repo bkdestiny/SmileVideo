@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using Common.EFcore.Models;
+using Common.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -76,9 +77,9 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="classifyId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId)
+        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds,VideoStatuses? videoStatus,string? searchText)
         {
-            IEnumerable<VodVideo> enumerable = await vodVideoRepository.QueryVodVideoAsync(classifyId);
+            IEnumerable<VodVideo> enumerable = await vodVideoRepository.QueryVodVideoAsync(classifyIds,videoStatus,searchText);
             return enumerable;
         }
         /// <summary>
@@ -90,6 +91,19 @@ namespace VodService.Domain.DomainServices
         {
            return await vodVideoRepository.FindVodVideoById(id);
         }
+        /// <summary>
+        /// 删除视频
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public async Task RemoveVodVideoAsync(params Guid[] ids)
+        {
+            foreach (Guid id in ids)
+            {
+                await vodVideoRepository.DeleteVodVideoByIdAsync(id);
+            }
+        }
+
         /// <summary>
         /// 根据Id获取视频分类
         /// </summary>
@@ -131,10 +145,22 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="classifyType">分类类型</param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType)
+        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType,string? searchText)
         {
-            IEnumerable<VodVideoClassify> enumerable =await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType);
+            IEnumerable<VodVideoClassify> enumerable =await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType,searchText);
             return enumerable;
+        }
+        /// <summary>
+        /// 删除视频分类
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public async Task RemoveVodVideoClassifyAsync(params Guid[] ids)
+        {
+            foreach (Guid id in ids)
+            {
+                await vodVideoClassifyRepository.RemoveVodVideoClassifyByIdAsync(id);
+            }
         }
         /// <summary>
         /// 新增视频片段
@@ -166,15 +192,27 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="videoId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId)
+        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId,string? searchText)
         {
-            return await vodVideoPartRepository.QueryVodVideoPartAsync(videoId);
+            return await vodVideoPartRepository.QueryVodVideoPartAsync(videoId,searchText);
         }
 
         public async Task<VodVideoPart?> GetVodVideoPartAsync(Guid id)
         {
             VodVideoPart? part=await vodVideoPartRepository.GetVodVideoPartByIdAsync(id);
             return part;
+        }
+
+        /// <summary>
+        /// 删除视频片段
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public async Task RemoveVodVideoPartAsync(Guid[] ids)
+        {
+            foreach (Guid id in ids) {
+                await vodVideoPartRepository.RemoveVodVideoPartByIdAsync(id);
+            }
         }
     }
 }

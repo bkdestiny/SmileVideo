@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.EFcore.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,9 +44,20 @@ namespace VodService.Infrastructure.Repositories
             return vodDbContext.VodVideoClassifies;
         }
 
-        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType)
+        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType, string? searchText)
         {
-            return await vodDbContext.VodVideoClassifies.Where(e => classifyType!=null?e.ClassifyType == classifyType:1==1).ToListAsync();
+            return await vodDbContext.VodVideoClassifies
+                .Where(e => classifyType!=null?e.ClassifyType == classifyType:1==1)
+                .Where(e=>!string.IsNullOrEmpty(searchText)?e.ClassifyName.Contains(searchText):true).ToListAsync();
+        }
+
+        public async Task RemoveVodVideoClassifyByIdAsync(Guid id)
+        {
+            VodVideoClassify? classify=await vodDbContext.VodVideoClassifies.SingleOrDefaultAsync(e=>e.Id==id);
+            if (classify != null)
+            {
+                vodDbContext.VodVideoClassifies.Remove(classify);
+            }
         }
     }
 }

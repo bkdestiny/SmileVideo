@@ -1,5 +1,7 @@
 ﻿using Common.Attributes;
+using Common.EFcore.Models;
 using Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VodService.Domain.DomainServices;
@@ -11,7 +13,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
 {
     [Route("VodVideoClassify")]
     [ApiController]
-    [UnitOfWork(typeof(VodDbContext))]
+    [UnitOfWork([typeof(VodDbContext)])]
     public class VodVideoClassifyAPIController : ControllerBase
     {
         private readonly VodDomainService vodDomainService;
@@ -27,6 +29,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
         /// <returns></returns>
         [HttpPost("AddVodVideoClassify")]
         [Idempotent]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<Result>> AddVodVideoClassify(VodVideoClassifyDto dto)
         {
             var vr=new VodVideoClassifyDtoValidator().Validate(dto);
@@ -48,6 +51,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("UpdateVodVideoClassify")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> UpdateVodVideoClassify(VodVideoClassifyDto dto)
         {
             var vr = new VodVideoClassifyDtoValidator().Validate(dto);
@@ -89,9 +93,25 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
             if (!vr.IsValid) { 
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            IEnumerable<VodVideoClassifyDto> vodVideoClassifiesEnumerable=(await vodDomainService.QueryVodVideoClassifyAsync(req.classifyType)).Select(e=>new VodVideoClassifyDto(e));
+            IEnumerable<VodVideoClassifyDto> vodVideoClassifiesEnumerable=(await vodDomainService.QueryVodVideoClassifyAsync(req.classifyType,req.SearchText)).Select(e=>new VodVideoClassifyDto(e));
+            if (req.SortOrderOfSortIndex != null&&req.SortOrderOfSortIndex==SortOrders.Asc)
+            {
+                vodVideoClassifiesEnumerable = vodVideoClassifiesEnumerable.OrderBy(e => e.SortIndex).ToList();
+            }
+            else if(req.SortOrderOfSortIndex != null && req.SortOrderOfSortIndex == SortOrders.Desc)
+            {
+                vodVideoClassifiesEnumerable=vodVideoClassifiesEnumerable.OrderByDescending(e => e.SortIndex).ToList();
+            }
             PagingData pagingData=PagingData.Create(vodVideoClassifiesEnumerable, req.PageSize, req.PageIndex);
             return Result.Ok(pagingData);
+        }
+
+        [HttpPost("RemoveVodVideoClassify")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result>> RemoveVodVideoClassify(List<Guid> ids)
+        {
+            await vodDomainService.RemoveVodVideoClassifyAsync(ids.ToArray());
+            return Result.Ok();
         }
     }
 }

@@ -32,21 +32,26 @@ namespace FileService.Domain.Entites
         /// <summary>
         /// 上传的文件的供外部访问者访问的路径
         /// </summary>
-        public Uri RemoteUrl { get; private set; }
+        public Uri? RemoteUrl { get; private set; }
 
         /// <summary>
         /// 备份文件路径，因为可能会更换文件存储系统或者云存储供应商，因此系统会保存一份自有的路径。
         /// 备份文件一般放到内网的高速、稳定设备上，比如NAS等。
         /// </summary>
-        public Uri BackupUrl { get; private set; }
+        public Uri? BackupUrl { get; private set; }
         /// <summary>
         /// 创建人Id
         /// </summary>
         public Guid CreatorId { get; private set; }
 
         public DateTime CreateTime { private set; get; }
+        /// <summary>
+        /// true 单个文件 false 文件夹
+        /// </summary>
+        public bool IsSingle {  get; private set; }
 
-        public SysFile(string fileName, string fileContentType, long fileSize, string fileSHA256Hash, Uri remoteUrl, Uri backupUrl, Guid creatorId)
+
+        public SysFile(string fileName, string fileContentType, long fileSize, string fileSHA256Hash, Uri remoteUrl,Uri backupUrl,Guid creatorId, bool isSingle=true)
         {
             FileName = fileName;
             FileContentType = fileContentType;
@@ -56,16 +61,7 @@ namespace FileService.Domain.Entites
             BackupUrl = backupUrl;
             CreatorId = creatorId;
             CreateTime = DateTime.Now;
-        }
-
-        public SysFile(string fileName, string fileContentType, long fileSize, string fileSHA256Hash, Uri remoteUrl, DateTime createTime)
-        {
-            FileName = fileName;
-            FileContentType = fileContentType;
-            FileSize = fileSize;
-            FileSHA256Hash = fileSHA256Hash;
-            RemoteUrl = remoteUrl;
-            CreateTime = createTime;
+            IsSingle = isSingle;
         }
     }
 }

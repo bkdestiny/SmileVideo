@@ -56,15 +56,26 @@ namespace VodService.Infrastructure.Repositories
             vodDbContext.Update(vodVideo);
         }
 
-        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(Guid? classifyId)
+        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds,VideoStatuses? videoStatus, string? searchText)
         {
             return await vodDbContext.VodVideos
-                .Where(e =>classifyId != Guid.Empty&&classifyId!=null ? e.VideoClassifies.Any(c => c.Id == classifyId) : 1 == 1)
+                .Where(e =>classifyIds .Count>0 ? classifyIds.All(id=>e.VideoClassifies.Any(c=>c.Id==id)): true && videoStatus!=null?e.VideoStatus==videoStatus:true)
+                .Where(e=>!string.IsNullOrEmpty(searchText)?e.VideoName.Contains(searchText)||e.Profile.Contains(searchText)||e.Description.Contains(searchText):true)
                 .Include(e => e.VideoClassifies).ToListAsync();
         }
         public async Task<List<VodVideo>?> Test(Guid id)
         {
             return await vodDbContext.VodVideos.Where(e => e.VideoClassifies.Any(c => c.Id == id)).Include(e => e.VideoClassifies).ToListAsync();
+        }
+
+        public async Task DeleteVodVideoByIdAsync(Guid id)
+        {
+            VodVideo? video = await vodDbContext.VodVideos.SingleAsync(v => v.Id == id&&!v.IsDeleted);
+            if (video != null)
+            {
+                video.SoftDelete();
+            }
+            
         }
     }
 }

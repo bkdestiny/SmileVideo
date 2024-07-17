@@ -6,7 +6,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI.Dtos
     public class VodVideoClassifyDto
     {
 
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.Empty;
 
         public string ClassifyName { get; set; }
 

@@ -1,17 +1,19 @@
 ﻿using Common.Attributes;
 using Common.Models;
+using Common.Utils;
 using FileService.Domain.DomainServices;
 using FileService.Domain.Entites;
 using FileService.Infrastructure;
 using FileService.WebAPI.Controllers.SysFileAPI.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 
 namespace FileService.WebAPI.Controllers.SysFileAPI
 {
     [Route("SysFile")]
     [ApiController]
-    [UnitOfWork(typeof(SysFileDbContext))]
+    [UnitOfWork([typeof(SysFileDbContext)])]
     public class SysFileAPIControllerController : ControllerBase
     {
         private readonly SysFileDomainService sysFileDomainService;
@@ -25,8 +27,8 @@ namespace FileService.WebAPI.Controllers.SysFileAPI
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("GetSysFileUrl")]
-        public async Task<ActionResult<Result>> GetSysFileUrl(Guid id)
+        [HttpGet("GetUrl")]
+        public async Task<ActionResult<Result>> GetUrl([FromQuery]Guid id)
         {
             Uri? sysFileUrl=await sysFileDomainService.GetSysFileUrl(id);
             if (sysFileUrl == null) {

@@ -34,23 +34,23 @@ namespace VodService.Domain.Entities
         /// <summary>
         /// 出演人员
         /// </summary>
-        public string? Performers {  get; set; } 
+        public string Performers {  get; set; } 
         /// <summary>
         /// 导演
         /// </summary>
-        public string? Director {  get; set; }
+        public string Director {  get; set; }
         /// <summary>
         /// 编剧
         /// </summary>
-        public string? Scriptwriter { get; set; }
+        public string Scriptwriter { get; set; }
         /// <summary>
         /// 描述
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
         /// <summary>
         /// 简介
         /// </summary>
-        public string? Profile { get; set; }
+        public string Profile { get; set; }
 
         public DateTime CreateTime { get; private set; }
 
@@ -67,7 +67,7 @@ namespace VodService.Domain.Entities
             this.IsDeleted = true;
         }
         private VodVideo() { }
-        public VodVideo(Guid id,string videoName, Guid? coverFile, string? performers, string? director, string? scriptwriter, string? description, string? profile, VideoStatuses videoStatus)
+        public VodVideo(Guid id,string videoName, Guid? coverFile, string performers="", string director="", string scriptwriter="", string description="", string profile="", VideoStatuses videoStatus=VideoStatuses.Public)
         {
             Id=id==Guid.Empty? Guid.NewGuid():id;
             VideoName = videoName;

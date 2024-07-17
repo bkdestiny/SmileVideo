@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,14 @@ namespace Common.Utils
 {
     public class FileHelper
     {
-        public static Stream? Create(string folderPath, string fileName, bool isAppend = false)
+        /// <summary>
+        /// 创建文件并返回流对象
+        /// </summary>
+        /// <param name="folderPath">文件目录</param>
+        /// <param name="fileName">文件名</param>
+        /// <param name="isAppend">true:已存在文件,则先删除原文件,false:继续写入原文件</param>
+        /// <returns></returns>
+        public static Stream? Create(string folderPath, string fileName, bool isAppend = true)
         {
             try
             {
@@ -42,29 +50,40 @@ namespace Common.Utils
             }
 
         }
+        /// <summary>
+        /// 删除文件夹以及文件夹下的所有文件
+        /// </summary>
+        /// <param name="folderPath">文件夹路径</param>
+        /// <exception cref="Exception"></exception>
         public static void DeleteFolder(string folderPath)
         {
-            try
+            if (Directory.Exists(folderPath))
             {
-                if (Directory.Exists(folderPath))
+                string[] childFilePaths = Directory.GetFiles(folderPath);
+                foreach (string childFilePath in childFilePaths)
                 {
-                    string[] childFilePaths=Directory.GetFiles(folderPath);
-                    foreach(string childPath in childFilePaths){
-                        if (Directory.Exists(childPath)) {
-                            DeleteFolder(childPath);
-                        }
-                        else
-                        {
-                            File.Delete(childPath);
-                        }
+                    if (File.Exists(childFilePath))
+                    {
+                        File.Delete(childFilePath);
                     }
-                    Directory.Delete(folderPath);
                 }
+                string[] childFolderPaths = Directory.GetDirectories(folderPath);
+                foreach (string childFolderPath in childFolderPaths)
+                {
+                    if (Directory.Exists(childFolderPath))
+                    {
+                        DeleteFolder(childFolderPath);
+                    }
+                }
+                Directory.Delete(folderPath);
             }
-            catch (Exception e) {
-                throw new Exception(e.Message);
-            }   
+
         }
+        /// <summary>
+        /// 删除文件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <exception cref="Exception"></exception>
         public static void DeleteFile(string filePath)
         {
             try
@@ -74,10 +93,56 @@ namespace Common.Utils
                     File.Delete(filePath);
                 }
             }
-            catch (Exception e) { 
+            catch (Exception e)
+            {
                 throw new Exception(e.Message);
             }
-            
+        }
+        /// <summary>
+        /// 查询文件夹下的所有文件
+        /// </summary>
+        ///<param name="filePathList"></param>
+        /// <param name="folderPath"></param>
+        /// <param name="extensionNames"></param>
+        public static List<CommonFileInfo> QueryAllFilePathByFolderPath(string folderPath, List<string>? requiredExtensionList = null)
+        {
+            List<CommonFileInfo> fileList = new List<CommonFileInfo>();
+            GetAllFilesByFolderPath(fileList, folderPath);
+            if (requiredExtensionList != null && requiredExtensionList.Count > 0)
+            {
+                //filePathList = filePathList.Where(filePath => extensionNameList.Any(name=>name==filePath.Substring(filePath.LastIndexOf('.')+1))).ToList();
+                fileList = fileList.Where(f => requiredExtensionList.Any(e => e == f.Extension)).ToList();
+            }
+            return fileList;
+        }
+        private static void GetAllFilesByFolderPath(List<CommonFileInfo> fileList, string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+            {
+                return;
+            }
+            //文件
+            string[] childFilePaths = Directory.GetFiles(folderPath);
+            foreach (string childFilePath in childFilePaths)
+            {
+                if (File.Exists(childFilePath))
+                {
+                    FileInfo file = new FileInfo(childFilePath);
+                    if (file.Exists)
+                    {
+                        fileList.Add(new CommonFileInfo(file));
+                    }
+                }
+            }
+            //文件夹
+            string[] childFolderPaths = Directory.GetDirectories(folderPath);
+            foreach (string childFolderPath in childFolderPaths)
+            {
+                if (Directory.Exists(childFolderPath))
+                {
+                    GetAllFilesByFolderPath(fileList, childFolderPath);
+                }
+            }
         }
     }
 }

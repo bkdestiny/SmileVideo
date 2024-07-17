@@ -4,6 +4,7 @@ using FileService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileService.Infrastructure.Migrations
 {
     [DbContext(typeof(SysFileDbContext))]
-    partial class SysFileDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240712114215_SysFile_AddField_IsSingle")]
+    partial class SysFile_AddField_IsSingle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
