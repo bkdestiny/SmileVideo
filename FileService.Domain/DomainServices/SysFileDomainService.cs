@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using Common;
+using Common.Models;
 using Common.Utils;
 using FileService.Domain.Entites;
 using FileService.Domain.IRepositories;
@@ -82,7 +83,7 @@ namespace FileService.Domain.DomainServices
                     
 
                     //4.保存文件信息到数据库
-                    sysFile = new SysFile(file.FileName, file.ContentType, file.Length, fileSHA256Hash, remoteUrl, backupUrl, new Guid());
+                    sysFile = new SysFile(file.FileName, file.ContentType, file.Length, fileSHA256Hash, remoteUrl, backupUrl, UserContext.UserInfo.Id);
                     await sysFileRepository.AddSysFileAsync(sysFile);
                     return sysFile.Id;
                 }
@@ -157,7 +158,7 @@ namespace FileService.Domain.DomainServices
 
                     //4.保存文件信息到数据库
                     logger.LogInformation(file.FileName + " 开始保存到数据库");
-                    sysFile = new SysFile(file.FileName, file.ContentType, file.Length, fileSHA256Hash, remoteUrl, backupUrl, new Guid(),false);
+                    sysFile = new SysFile(file.FileName, file.ContentType, file.Length, fileSHA256Hash, remoteUrl, backupUrl, UserContext.UserInfo.Id,false);
                     await sysFileRepository.AddSysFileAsync(sysFile);
                     logger.LogInformation(file.FileName + " 保存到数据库完成");
                     return sysFile.Id;

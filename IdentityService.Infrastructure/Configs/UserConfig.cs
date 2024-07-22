@@ -14,7 +14,7 @@ namespace IdentityService.Infrastructure.Config
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-
+            builder.Property(e=>e.UserName).IsRequired();
         }
     }
 }

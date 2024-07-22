@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Initializer\Initializer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\UserManageAPI\Dtos\" />
-  </ItemGroup>
-
 </Project>

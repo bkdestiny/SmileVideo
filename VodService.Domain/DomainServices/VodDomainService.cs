@@ -1,4 +1,5 @@
-﻿using Common.EFcore.Models;
+﻿using AsmResolver.PE.DotNet.ReadyToRun;
+using Common.EFcore.Models;
 using Common.Models;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +23,14 @@ namespace VodService.Domain.DomainServices
 
         private readonly IVodVideoPartRepository vodVideoPartRepository;
 
+        private readonly IVodVideoCommentRepository vodVideoCommentRepository;
 
-        public VodDomainService(IVodVideoRepository vodVideoRepository, IVodVideoClassifyRepository vodVideoClassifyRepository, IVodVideoPartRepository vodVideoPartRepository)
+        public VodDomainService(IVodVideoRepository vodVideoRepository, IVodVideoClassifyRepository vodVideoClassifyRepository, IVodVideoPartRepository vodVideoPartRepository, IVodVideoCommentRepository vodVideoCommentRepository)
         {
             this.vodVideoRepository = vodVideoRepository;
             this.vodVideoClassifyRepository = vodVideoClassifyRepository;
             this.vodVideoPartRepository = vodVideoPartRepository;
+            this.vodVideoCommentRepository = vodVideoCommentRepository;
         }
         /// <summary>
         /// 新增视频
@@ -89,7 +92,7 @@ namespace VodService.Domain.DomainServices
         /// <returns></returns>
         public async Task<VodVideo?> GetVodVideoByIdAsync(Guid id)
         {
-           return await vodVideoRepository.FindVodVideoById(id);
+           return await vodVideoRepository.FindVodVideoByIdAsync(id);
         }
         /// <summary>
         /// 删除视频
@@ -169,7 +172,7 @@ namespace VodService.Domain.DomainServices
         /// <returns></returns>
         public async Task<(bool,string)> AddVodVideoPartAsync(Guid videoId,VodVideoPart vodVideoPart)
         {
-            VodVideo? video=await vodVideoRepository.FindVodVideoById(videoId);
+            VodVideo? video=await vodVideoRepository.FindVodVideoByIdAsync(videoId);
             if (video == null) {
                 return (false, "视频不存在");
             }
@@ -213,6 +216,31 @@ namespace VodService.Domain.DomainServices
             foreach (Guid id in ids) {
                 await vodVideoPartRepository.RemoveVodVideoPartByIdAsync(id);
             }
+        }
+        /// <summary>
+        /// 新增评论
+        /// </summary>
+        /// <param name="vodVideoComment"></param>
+        /// <returns></returns>
+        public async Task<(bool,string)> AddVodVideoCommentAsync(Guid videoId,VodVideoComment vodVideoComment, Guid? rootVodVideoCommentId=null)
+        {
+            VodVideo? vodVideo=await vodVideoRepository.FindVodVideoByIdAsync(videoId);
+            if (vodVideo == null)
+            {
+                return (false, "不存在该视频");
+            }
+            if (rootVodVideoCommentId != null)
+            {
+                VodVideoComment? rootVodVideoComment =await vodVideoCommentRepository.FindVodVideoCommentByIdAsync(rootVodVideoCommentId.GetValueOrDefault());
+                if(rootVodVideoComment == null)
+                {
+                    return (false, "不存在该根评论");
+                }
+                vodVideoComment.RootVideoComment = rootVodVideoComment;
+            }
+            vodVideoComment.Video=vodVideo;
+            await vodVideoCommentRepository.AddVodVideoCommentAsync(vodVideoComment);
+            return (true, "");
         }
     }
 }

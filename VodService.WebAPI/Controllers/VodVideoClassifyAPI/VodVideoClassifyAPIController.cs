@@ -2,7 +2,6 @@
 using Common.EFcore.Models;
 using Common.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VodService.Domain.DomainServices;
 using VodService.Domain.Entities;

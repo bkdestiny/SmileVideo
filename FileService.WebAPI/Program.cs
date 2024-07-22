@@ -1,5 +1,8 @@
 
+using FileService.Domain.DomainServices;
+using FileService.Domain.IRepositories;
 using FileService.Domain.IStorage;
+using FileService.Infrastructure.Repositories;
 using FileService.Infrastructure.Storage;
 using Initializer;
 using Microsoft.AspNetCore.Http.Features;
@@ -15,6 +18,7 @@ namespace FileService.WebAPI
             // Add services to the container.
             IConfiguration configuration = builder.Configuration;
 
+
             builder.Services.Configure<FormOptions>(options =>
             {
                 options.MultipartBodyLengthLimit = 3_1024_1024_1024; // 设置文件上传大小限制为 3 GB
@@ -27,6 +31,9 @@ namespace FileService.WebAPI
                 LogFilePath = $"d:/SmileVideo/FileService/logs/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
             #endregion
+
+            builder.Services.AddScoped<ISysFileRepository, SysFileRepository>();
+            builder.Services.AddScoped<SysFileDomainService>();
 
             #region 腾讯云Cos
             TencentYunCosOptions tencentYunCosOptions= configuration.GetSection("TencentYunCos").Get<TencentYunCosOptions>();

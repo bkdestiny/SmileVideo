@@ -38,10 +38,6 @@ namespace VodService.Domain.Entities
         /// 评论时间
         /// </summary>
         public DateTime CreateTime {  get;private set; }
-        /// <summary>
-        /// 评论类型 根评论 or 子评论
-        /// </summary>
-        public VodVideoCommentTypes VideoCommentTypes { get; set; }
 
         /// <summary>
         /// 点赞数量
@@ -59,13 +55,11 @@ namespace VodService.Domain.Entities
         /// <param name="userId"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public VodVideoComment CreateRootVideoComment(VodVideo video, Guid userId,  string content)
+        public static VodVideoComment CreateRootVideoComment(Guid userId,  string content)
         {
             VodVideoComment instance= new VodVideoComment();
-            instance.Video = video;
             instance.UserId = userId;
             instance.Content = content;
-            instance.VideoCommentTypes = VodVideoCommentTypes.Root;
             instance.CreateTime=DateTime.Now;
             return instance;
         }
@@ -77,13 +71,10 @@ namespace VodService.Domain.Entities
         /// <param name="rootVideoComment"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public VodVideoComment CreateSubVideoComment(VodVideo video, Guid userId,VodVideoComment rootVideoComment, string content) {
+        public static VodVideoComment CreateSubVideoComment(Guid userId, string content) {
             VodVideoComment instance = new VodVideoComment();
-            instance.Video = video;
             instance.UserId = userId;
             instance.Content = content;
-            instance.RootVideoComment=rootVideoComment;
-            instance.VideoCommentTypes = VodVideoCommentTypes.Sub;
             instance.CreateTime = DateTime.Now;
             return instance;
         }
@@ -96,22 +87,14 @@ namespace VodService.Domain.Entities
         /// <param name="rootVideoComment"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public VodVideoComment CreateAnswerSubVideoComment(VodVideo video,Guid userId,Guid respondentUserId,VodVideoComment rootVideoComment,string content)
+        public static VodVideoComment CreateAnswerSubVideoComment(Guid userId,Guid respondentUserId,string content)
         {
             VodVideoComment instance = new VodVideoComment();
-            instance.Video = video;
             instance.UserId = userId;
             instance.RespondentUserId = respondentUserId;
             instance.Content = content;
-            instance.RootVideoComment = rootVideoComment;
-            instance.VideoCommentTypes = VodVideoCommentTypes.Sub;
             instance.CreateTime = DateTime.Now;
             return instance;
         }
-    }
-
-    public enum VodVideoCommentTypes
-    {
-        Root,Sub
     }
 }

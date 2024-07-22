@@ -21,7 +21,7 @@ namespace VodService.Domain.IRepositories
         /// <returns></returns>
         Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds,VideoStatuses? videoStatus,string? searchText);
 
-        Task<VodVideo?> FindVodVideoById(Guid id);
+        Task<VodVideo?> FindVodVideoByIdAsync(Guid id);
 
         Task BindVodVideoClassify(Guid videoId,Guid classifyIds);
 

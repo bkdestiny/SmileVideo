@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VodService.Infrastructure;
 
@@ -11,9 +12,11 @@ using VodService.Infrastructure;
 namespace VodService.Infrastructure.Migrations
 {
     [DbContext(typeof(VodDbContext))]
-    partial class VodDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240718144742_UpdateVodVideoField")]
+    partial class UpdateVodVideoField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,6 +137,9 @@ namespace VodService.Infrastructure.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("VideoCommentTypes")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("VideoId")
                         .HasColumnType("uniqueidentifier");

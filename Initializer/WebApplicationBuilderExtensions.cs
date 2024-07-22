@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Common.Sms;
 using Common.MediatR;
 using Common.Models;
+using Microsoft.AspNetCore.Hosting;
 namespace Initializer
 {
     public static class WebApplicationBuilderExtensions
@@ -40,11 +41,32 @@ namespace Initializer
             IServiceCollection services = builder.Services;
             IConfiguration configuration = builder.Configuration;
             var assemblies = ReflectionHelper.GetAllReferencedAssemblies();
-            services.RunModuleInitializers(assemblies);
+            //services.RunModuleInitializers(assemblies);
             try
             {
+
+                #region 批量配置DbContext
+                string? connStr = configuration.GetConnectionString("Default");
+                services.AddAllDbContexts(ctx =>
+                {
+                    //连接字符串如果放到appsettings.json中，会有泄密的风险
+                    //如果放到UserSecrets中，每个项目都要配置，很麻烦
+                    //因此这里推荐放到环境变量中。
+                    ctx.UseSqlServer(connStr);
+                }, assemblies);
+                #endregion
+
+
+                #region 访问地址
+                string[]? urls = configuration.GetSection("Urls").Get<string[]>();
+                if (urls != null)
+                {
+                    builder.WebHost.UseUrls(urls);
+                }
+                #endregion
+
                 #region 集中式日志 Exceptionless 其它方案:ELK、自己部署日志服务器
-                ExceptionlessClient.Default.Startup("hw4SGRNRrkgY1BwXJ2LERakjUC7iHsKVJZa8sOpK");
+               // ExceptionlessClient.Default.Startup("hw4SGRNRrkgY1BwXJ2LERakjUC7iHsKVJZa8sOpK");
                 //ExceptionlessClient.Default.Configuration.SetDefaultMinLogLevel(Exceptionless.Logging.LogLevel.Info);//默认最低级别是Warning
                 #endregion
 
@@ -60,23 +82,12 @@ namespace Initializer
                     encoding: System.Text.Encoding.UTF8, //文件字符编码
                     retainedFileCountLimit: 10 //最大保存文件数
                     ).
-                    WriteTo.Exceptionless().//写入Exceptionless
+                   // WriteTo.Exceptionless().//写入Exceptionless
                     WriteTo.Console().//写入控制台
                     CreateLogger();
                     builder.AddSerilog();
                 });
 
-                #endregion
-
-                #region 批量配置DbContext
-                string? connStr = configuration.GetConnectionString("Default");
-                services.AddAllDbContexts(ctx =>
-                {
-                    //连接字符串如果放到appsettings.json中，会有泄密的风险
-                    //如果放到UserSecrets中，每个项目都要配置，很麻烦
-                    //因此这里推荐放到环境变量中。
-                    ctx.UseSqlServer(connStr);
-                }, assemblies);
                 #endregion
 
                 #region 解决json套娃递归问题报错 System.Text.Json配置处理套娃递归的方式为忽略
@@ -179,7 +190,7 @@ namespace Initializer
 
                     //如果你使用的 MongoDB，你可以添加如下配置：
                     //x.UseMongoDB("ConnectionStrings");  //注意，仅支持MongoDB 4.0+集群
-                    RabbitMQOptions rabbitMQOptions = configuration.GetSection("RabbitMQ").Get<RabbitMQOptions>();
+                    RabbitMQOptions? rabbitMQOptions = configuration.GetSection("RabbitMQ").Get<RabbitMQOptions>();
                     x.UseRabbitMQ(mq =>
                     {
                         mq.HostName = rabbitMQOptions.HostName; //RabitMq服务器地址，依实际情况修改此地址

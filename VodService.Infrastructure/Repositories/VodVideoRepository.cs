@@ -41,7 +41,7 @@ namespace VodService.Infrastructure.Repositories
             video.VideoClassifies.Clear();
         }
 
-        public async Task<VodVideo?> FindVodVideoById(Guid id)
+        public async Task<VodVideo?> FindVodVideoByIdAsync(Guid id)
         {
             return await vodDbContext.VodVideos.Where(v => v.Id == id && !v.IsDeleted).Include(v=>v.VideoClassifies).FirstOrDefaultAsync();
         }

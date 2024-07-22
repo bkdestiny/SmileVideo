@@ -1,7 +1,10 @@
 
 using Common;
+using IdentityService.Domain.DomainServices;
 using IdentityService.Domain.Entites;
+using IdentityService.Domain.IRepositories;
 using IdentityService.Infrastructure;
+using IdentityService.Infrastructure.Repositories;
 using IdentityService.WebAPI.BackgroundServices;
 using Initializer;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +27,9 @@ namespace IdentityService.WebAPI
                 EventBusQueueName = "IdentityService.WebAPI",
                 LogFilePath = $"d:/SmileVideo/IdentityService/logs/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
-
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+            builder.Services.AddScoped<IdentityDomainService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,6 +47,8 @@ namespace IdentityService.WebAPI
                 options.Password.RequireNonAlphanumeric = false;//非字母数字
                 options.Password.RequireUppercase = false;//大写
                 options.Password.RequiredLength = 6;//长度
+                options.Lockout.MaxFailedAccessAttempts= 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
                 //不能设定RequireUniqueEmail，否则不允许邮箱为空
                 //options.User.RequireUniqueEmail = true;
                 //以下两行，把GenerateEmailConfirmationTokenAsync验证码缩短

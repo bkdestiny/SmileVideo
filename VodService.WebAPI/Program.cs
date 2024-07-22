@@ -1,5 +1,8 @@
 
 using Initializer;
+using VodService.Domain.DomainServices;
+using VodService.Domain.IRepositories;
+using VodService.Infrastructure.Repositories;
 
 namespace VodService.WebAPI
 {
@@ -18,6 +21,12 @@ namespace VodService.WebAPI
             });
             #endregion
 
+            builder.Services.AddScoped<IVodVideoRepository, VodVideoRepository>();
+            builder.Services.AddScoped<IVodVideoClassifyRepository, VodVideoClassifyRepository>();
+            builder.Services.AddScoped<IVodVideoPartRepository, VodVideoPartRepository>();
+            builder.Services.AddScoped<IVodVideoCommentRepository, VodVideoCommentRepository>();
+            builder.Services.AddScoped<VodDomainService>();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -32,11 +41,11 @@ namespace VodService.WebAPI
                 app.UseSwaggerUI();
             }
 
-
+            
             #region Í¨³£
             app.UseDefault();
             #endregion
-
+            
             app.MapControllers();
 
             app.Run();

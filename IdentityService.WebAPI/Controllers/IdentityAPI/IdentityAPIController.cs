@@ -41,7 +41,6 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
         /// <returns></returns>
         [HttpPost("LoginByUserNameAndPassword")]
         [AllowAnonymous]
-        [Idempotent]
         public async Task<ActionResult<Result>> LoginByUserNameAndPassword(LoginByUserNameAndPasswordRequest req)
         {
             string ipAddress = HttpHelper.GetRemoteIpAddress(HttpContext);
@@ -50,8 +49,8 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             {
                 return Result.Error("用户名或密码不存在");
             }
-            IEnumerable<string> roles = await userManager.GetRolesAsync(user);
-            string token = JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress, user.Avatar), jwtOptions);
+            IList<string> roles = await userManager.GetRolesAsync(user);
+            string token = JWTHelper.BuildToken(new JWTModel(user.Id,user.UserName!, string.Join(",", roles), ipAddress, user.Avatar), jwtOptions);
             Result result=Result.Ok("登录成功", token);
             return result;
         }
@@ -63,6 +62,7 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
         [HttpPost("Authentication")]
         public ActionResult<Result> Authentication()
         {
+            JWTModel jwtModel=UserContext.UserInfo;
             return Result.Ok();
         }
         /// <summary>
@@ -106,9 +106,9 @@ namespace IdentityService.WebAPI.Controllers.IdentityAPI
             {
                 return Result.Error();
             }
-            IEnumerable<string> roles=await userManager.GetRolesAsync(user);
+            IList<string> roles=await userManager.GetRolesAsync(user);
             string ipAddress = HttpHelper.GetRemoteIpAddress(this.HttpContext);
-            string token=JWTHelper.BuildToken(new JWTModel(user.UserName!, string.Join(",", roles), ipAddress,user.Avatar),jwtOptions);
+            string token=JWTHelper.BuildToken(new JWTModel(user.Id,user.UserName!, string.Join(",", roles), ipAddress,user.Avatar),jwtOptions);
             return Result.Ok(token);
 
         }
