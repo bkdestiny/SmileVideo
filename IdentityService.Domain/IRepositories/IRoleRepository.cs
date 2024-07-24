@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IdentityService.Domain.Entites;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,8 @@ namespace IdentityService.Domain.IRepositories
 {
     public interface IRoleRepository
     {
+        Task<IList<Role>> QueryRoleAsync(string searchText);
+
+        Task DeleteRoleAsync(Guid id);
     }
 }

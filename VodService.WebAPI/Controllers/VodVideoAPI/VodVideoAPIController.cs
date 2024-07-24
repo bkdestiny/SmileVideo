@@ -16,6 +16,7 @@ namespace VodService.WebAPI.Controllers.VodVideoAPI
     [Route("VodVideo")]
     [ApiController]
     [UnitOfWork([typeof(VodDbContext)])]
+    [Authorize]
     public class VodVideoAPIController : ControllerBase
     {
         private readonly VodDomainService vodDomainService;

@@ -9,12 +9,14 @@ using IdentityService.WebAPI.Controllers.UserAPI.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Common.Attributes;
 using IdentityService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.WebAPI.Controllers.UserManageAPI
 {
     [ApiController]
     [Route("User")]
     [UnitOfWork([typeof(IdDbContext)])]
+    [Authorize]
     public class UserAPIController : ControllerBase
     {
         private readonly UserManager<User> userManager;
@@ -43,6 +45,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
         /// </summary>
         /// <returns></returns>
         [HttpPost("InitAdmin")]
+        [AllowAnonymous]
         public async Task<ActionResult<Result>> InitAdmin()
         {
             string? userName = "admin";
@@ -71,8 +74,8 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("AddUser")]
-        [Authorize(Roles ="Admin")]
         [Idempotent]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> AddUser(UserDto dto)
         {
             var vr=new AddUserDtoValidator().Validate(dto);
@@ -92,7 +95,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("UpdateUser")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> UpdateUser(UserDto dto)
         {
             var vr = new UpdateUserDtoValidator().Validate(dto);
@@ -100,14 +103,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);
             }
-            User? user=await userManager.FindByIdAsync(dto.Id.ToString());
-            if (user == null) {
-                return Result.DataQueryFailed;
-            }
-            user.UserName= dto.UserName;
-            user.PhoneNumber= dto.PhoneNumber;
-            user.Email= dto.Email;
-            (bool success,string message)=await identityDomainService.UpdateUserAsync(user);
+            (bool success,string message)=await identityDomainService.UpdateUserAsync(dto.Id,dto.UserName,dto.PhoneNumber,dto.Email);
             if (!success)
             {
                 return Result.Error(message);
@@ -136,6 +132,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
         /// <param name="ids"></param>
         /// <returns></returns>
         [HttpPost("RemoveUser")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> RemoveUser(Guid[] ids)
         {
             await identityDomainService.RemoveUserAsync(ids);
@@ -147,7 +144,7 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost("ResetPasswordFromAdmin")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> ResetPasswordFromAdmin(ResetPasswordRequest req)
         {
             var vr=new ResetPasswordFromAdminFromValidator().Validate(req);
@@ -158,6 +155,36 @@ namespace IdentityService.WebAPI.Controllers.UserManageAPI
             (bool success,string message)=await identityDomainService.ResetPasswordFromAdminAsync(req.Id, req.NewPassword);
             if (!success) { 
                 return Result.Error(message);
+            }
+            return Result.Ok();
+        }
+        /// <summary>
+        /// 配置用户的角色
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost("ResetRolesOfUser")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result>> ResetRolesOfUser(ResetRolesOfUserReqeuest req)
+        {
+            var vr=new ResetRolesOfUserRequestValidator().Validate(req);
+            if (!vr.IsValid) {
+                return Result.Error(vr.Errors[0].ErrorMessage);
+            }
+            User? user = await userManager.FindByIdAsync(req.UserId.ToString());
+            if (user == null) {
+                return Result.Error("不存在该用户");
+            }
+            IList<string> removeRoleNames=await userManager.GetRolesAsync(user);
+            var ir=await userManager.RemoveFromRolesAsync(user,removeRoleNames);
+            if (!ir.Succeeded)
+            {
+                return Result.Error("配置角色失败");
+            }
+            IList<string> newRoleNames=await roleManager.Roles.Where(e => req.RoleIds.Contains(e.Id)).Select(e => e.Name!).ToListAsync();
+            ir=await userManager.AddToRolesAsync(user,newRoleNames);
+            if (!ir.Succeeded) {
+                return Result.Error("配置角色失败");
             }
             return Result.Ok();
         }

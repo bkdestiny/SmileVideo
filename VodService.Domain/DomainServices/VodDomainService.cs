@@ -37,20 +37,26 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideo"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> AddVodVideoAsync(VodVideo vodVideo,Guid[] videoClassifyIds)
+        public async Task<(bool, string)> AddVodVideoAsync(VodVideo vodVideo, Guid[] videoClassifyIds)
         {
-            List<VodVideo> videoList=await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
-            if (videoList.Count>0)
+            List<VodVideo> videoList = await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
+            if (videoList.Count > 0)
             {
                 //该视频名称已被使用
-                return (false,"该视频名称已被使用"); 
+                return (false, "该视频名称已被使用");
+            }
+            foreach (Guid videoClassifyId in videoClassifyIds)
+            {
+                VodVideoClassify? videoClassify = await vodVideoClassifyRepository.FindVodVideoClassifyByIdAsync(videoClassifyId);
+                if (videoClassify != null)
+                {
+                    vodVideo.VideoClassifies.Add(videoClassify);
+                }
             }
             //新增视频信息
             await vodVideoRepository.AddVodVideoAsync(vodVideo);
             //绑定视频分类信息
-            foreach (Guid videoClassifyId in videoClassifyIds) {
-                await vodVideoRepository.BindVodVideoClassify(vodVideo.Id, videoClassifyId);
-            }
+
             return (true, "新增成功");
         }
         /// <summary>
@@ -58,20 +64,22 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideo"></param>
         /// <returns></returns>
-        public async Task<(bool, string)> UpdateVodVideoAsync(VodVideo vodVideo, Guid[] videoClassifyIds) {
-/*            List<VodVideo> videoList = await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
-            if (videoList.Count > 0 && videoList[0].Id!=vodVideo.Id)
-            {
-                //该视频名称已被使用
-                return (false, "该视频名称已被使用");
-            }*/
+        public async Task<(bool, string)> UpdateVodVideoAsync(VodVideo vodVideo, Guid[] videoClassifyIds)
+        {
+            /*            List<VodVideo> videoList = await vodVideoRepository.FindVodVideoByVideoNameAsync(vodVideo.VideoName);
+                        if (videoList.Count > 0 && videoList[0].Id!=vodVideo.Id)
+                        {
+                            //该视频名称已被使用
+                            return (false, "该视频名称已被使用");
+                        }*/
             //更新视频信息
             vodVideoRepository.UpdateVodVideo(vodVideo);
             //清除原本绑定的视频分类
             await vodVideoRepository.ClearBindVodVideoClassify(vodVideo.Id);
             //更新视频分类
-            foreach (Guid videoClassifyId in videoClassifyIds) { 
-                await vodVideoRepository.BindVodVideoClassify(vodVideo.Id,videoClassifyId);
+            foreach (Guid videoClassifyId in videoClassifyIds)
+            {
+                await vodVideoRepository.BindVodVideoClassify(vodVideo.Id, videoClassifyId);
             }
             return (true, "更新成功");
         }
@@ -80,9 +88,9 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="classifyId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds,VideoStatuses? videoStatus,string? searchText)
+        public async Task<IEnumerable<VodVideo>> QueryVodVideoAsync(List<Guid> classifyIds, VideoStatuses? videoStatus, string? searchText)
         {
-            IEnumerable<VodVideo> enumerable = await vodVideoRepository.QueryVodVideoAsync(classifyIds,videoStatus,searchText);
+            IEnumerable<VodVideo> enumerable = await vodVideoRepository.QueryVodVideoAsync(classifyIds, videoStatus, searchText);
             return enumerable;
         }
         /// <summary>
@@ -92,7 +100,7 @@ namespace VodService.Domain.DomainServices
         /// <returns></returns>
         public async Task<VodVideo?> GetVodVideoByIdAsync(Guid id)
         {
-           return await vodVideoRepository.FindVodVideoByIdAsync(id);
+            return await vodVideoRepository.FindVodVideoByIdAsync(id);
         }
         /// <summary>
         /// 删除视频
@@ -112,7 +120,8 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<VodVideoClassify?> GetVodVideoClassifyByIdAsync(Guid id) {
+        public async Task<VodVideoClassify?> GetVodVideoClassifyByIdAsync(Guid id)
+        {
             return await vodVideoClassifyRepository.FindVodVideoClassifyByIdAsync(id);
         }
         /// <summary>
@@ -120,12 +129,12 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideoClassify"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> AddVodVideoClassifyAsync(VodVideoClassify vodVideoClassify)
+        public async Task<(bool, string)> AddVodVideoClassifyAsync(VodVideoClassify vodVideoClassify)
         {
-/*            List<VodVideoClassify> classifyList=await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
-            if (classifyList.Count > 0) {
-                return (false, "该视频分类名称已被使用");
-            }*/
+            /*            List<VodVideoClassify> classifyList=await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
+                        if (classifyList.Count > 0) {
+                            return (false, "该视频分类名称已被使用");
+                        }*/
             await vodVideoClassifyRepository.AddVodVideoClassifyAsync(vodVideoClassify);
             return (true, "");
         }
@@ -134,12 +143,13 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideoClassify"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> UpdateVodVideoClassifyAsync(VodVideoClassify vodVideoClassify) {
-/*            List<VodVideoClassify> classifyList = await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
-            if (classifyList.Count > 0 && classifyList[0].Id!=vodVideoClassify.Id)
-            {
-                return (false, "该视频分类名称已被使用");
-            }*/
+        public async Task<(bool, string)> UpdateVodVideoClassifyAsync(VodVideoClassify vodVideoClassify)
+        {
+            /*            List<VodVideoClassify> classifyList = await vodVideoClassifyRepository.FindVodVideoClassifyByClassifyNameAsync(vodVideoClassify.ClassifyName);
+                        if (classifyList.Count > 0 && classifyList[0].Id!=vodVideoClassify.Id)
+                        {
+                            return (false, "该视频分类名称已被使用");
+                        }*/
             vodVideoClassifyRepository.UpdateVodVideoClassify(vodVideoClassify);
             return (true, "更新成功");
         }
@@ -148,9 +158,9 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="classifyType">分类类型</param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType,string? searchText)
+        public async Task<IEnumerable<VodVideoClassify>> QueryVodVideoClassifyAsync(ClassifyTypes? classifyType, string? searchText)
         {
-            IEnumerable<VodVideoClassify> enumerable =await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType,searchText);
+            IEnumerable<VodVideoClassify> enumerable = await vodVideoClassifyRepository.QueryVodVideoClassifyAsync(classifyType, searchText);
             return enumerable;
         }
         /// <summary>
@@ -170,10 +180,11 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideoPart"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> AddVodVideoPartAsync(Guid videoId,VodVideoPart vodVideoPart)
+        public async Task<(bool, string)> AddVodVideoPartAsync(Guid videoId, VodVideoPart vodVideoPart)
         {
-            VodVideo? video=await vodVideoRepository.FindVodVideoByIdAsync(videoId);
-            if (video == null) {
+            VodVideo? video = await vodVideoRepository.FindVodVideoByIdAsync(videoId);
+            if (video == null)
+            {
                 return (false, "视频不存在");
             }
             vodVideoPart.Video = video;
@@ -185,7 +196,7 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideoPart"></param>
         /// <returns></returns>
-        public (bool,string) UpdateVodVideoPart(VodVideoPart vodVideoPart)
+        public (bool, string) UpdateVodVideoPart(VodVideoPart vodVideoPart)
         {
             vodVideoPartRepository.UpdateVodVideoPart(vodVideoPart);
             return (true, "");
@@ -195,14 +206,14 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="videoId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId,string? searchText)
+        public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId, string? searchText)
         {
-            return await vodVideoPartRepository.QueryVodVideoPartAsync(videoId,searchText);
+            return await vodVideoPartRepository.QueryVodVideoPartAsync(videoId, searchText);
         }
 
         public async Task<VodVideoPart?> GetVodVideoPartAsync(Guid id)
         {
-            VodVideoPart? part=await vodVideoPartRepository.GetVodVideoPartByIdAsync(id);
+            VodVideoPart? part = await vodVideoPartRepository.GetVodVideoPartByIdAsync(id);
             return part;
         }
 
@@ -213,7 +224,8 @@ namespace VodService.Domain.DomainServices
         /// <returns></returns>
         public async Task RemoveVodVideoPartAsync(Guid[] ids)
         {
-            foreach (Guid id in ids) {
+            foreach (Guid id in ids)
+            {
                 await vodVideoPartRepository.RemoveVodVideoPartByIdAsync(id);
             }
         }
@@ -222,25 +234,30 @@ namespace VodService.Domain.DomainServices
         /// </summary>
         /// <param name="vodVideoComment"></param>
         /// <returns></returns>
-        public async Task<(bool,string)> AddVodVideoCommentAsync(Guid videoId,VodVideoComment vodVideoComment, Guid? rootVodVideoCommentId=null)
+        public async Task<(bool, string)> AddVodVideoCommentAsync(Guid videoId, VodVideoComment vodVideoComment, Guid? rootVodVideoCommentId = null)
         {
-            VodVideo? vodVideo=await vodVideoRepository.FindVodVideoByIdAsync(videoId);
+            VodVideo? vodVideo = await vodVideoRepository.FindVodVideoByIdAsync(videoId);
             if (vodVideo == null)
             {
                 return (false, "不存在该视频");
             }
             if (rootVodVideoCommentId != null)
             {
-                VodVideoComment? rootVodVideoComment =await vodVideoCommentRepository.FindVodVideoCommentByIdAsync(rootVodVideoCommentId.GetValueOrDefault());
-                if(rootVodVideoComment == null)
+                VodVideoComment? rootVodVideoComment = await vodVideoCommentRepository.FindVodVideoCommentByIdAsync(rootVodVideoCommentId.GetValueOrDefault());
+                if (rootVodVideoComment == null)
                 {
                     return (false, "不存在该根评论");
                 }
                 vodVideoComment.RootVideoComment = rootVodVideoComment;
             }
-            vodVideoComment.Video=vodVideo;
+            vodVideoComment.Video = vodVideo;
             await vodVideoCommentRepository.AddVodVideoCommentAsync(vodVideoComment);
             return (true, "");
+        }
+
+        public async Task<IList<VodVideoComment>> QueryVodVideoCommentAsync(Guid videoId,Guid rootVideoCommentId=new Guid())
+        {
+            return await vodVideoCommentRepository.QueryVodVideoCommentAsync(videoId, rootVideoCommentId);
         }
     }
 }

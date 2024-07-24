@@ -23,7 +23,7 @@ namespace VodService.WebAPI.Controllers.VodVideoCommentAPI.Dtos
         public int LikesCount { get; private set; } = 0;
 
 
-        private VodVideoCommentDto()
+        public VodVideoCommentDto()
         {
 
         }

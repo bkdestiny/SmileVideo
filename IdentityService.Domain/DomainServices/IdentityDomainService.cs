@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using AsmResolver.PE.DotNet.ReadyToRun;
+using RabbitMQ.Client;
 
 namespace IdentityService.Domain.DomainServices
 {
@@ -227,15 +228,17 @@ namespace IdentityService.Domain.DomainServices
                 if (await userManager.FindByNameAsync(user.UserName!) != null)
                 {
                     return (false, "该用户名已被使用");
-                } 
+                }
                 var ir = await userManager.CreateAsync(user, password);
                 if (!ir.Succeeded)
                 {
                     return (false, "创建用户失败");
                 }
                 return (true, "");
-            }catch(Exception e){
-            
+            }
+            catch (Exception e)
+            {
+
                 return (false, "创建用户失败");
             }
         }
@@ -244,18 +247,31 @@ namespace IdentityService.Domain.DomainServices
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<(bool, string)> UpdateUserAsync(User user)
+        public async Task<(bool, string)> UpdateUserAsync(Guid id, string? userName, string? phoneNumber, string? email)
         {
             try
             {
-                var vr=await userManager.UpdateAsync(user);
+                User? user = await userManager.FindByIdAsync(id.ToString());
+                if (user == null)
+                {
+                    return (false, "不存在该用户");
+                }
+
+                if (userName != null)
+                    user.UserName = userName;
+                if (phoneNumber != null)
+                    user.PhoneNumber = phoneNumber;
+                if (email != null)
+                    user.Email = email;
+
+                var vr = await userManager.UpdateAsync(user);
                 if (!vr.Succeeded)
                 {
                     return (false, "更新用户失败");
                 }
                 return (true, "");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return (false, "更新用户失败");
             }
@@ -281,21 +297,97 @@ namespace IdentityService.Domain.DomainServices
         {
             return await userRepository.SelectUserByIdAsync(id);
         }
-
-        public async Task<(bool,string)> ResetPasswordFromAdminAsync(Guid id,string password)
+        /// <summary>
+        /// 直接重置用户密码(管理员)
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<(bool, string)> ResetPasswordFromAdminAsync(Guid id, string password)
         {
             User? user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 return (false, "用户不存在");
             }
-            string newPasswordHash=userManager.PasswordHasher.HashPassword(user,password);
+            string newPasswordHash = userManager.PasswordHasher.HashPassword(user, password);
             user.PasswordHash = newPasswordHash;
-            var ir=await userManager.UpdateAsync(user);
-            if (!ir.Succeeded) {
+            var ir = await userManager.UpdateAsync(user);
+            if (!ir.Succeeded)
+            {
                 return (false, "修改失败");
             }
             return (true, "");
+        }
+        /// <summary>
+        /// 查询角色列表
+        /// </summary>
+        /// <param name="searchText"></param>
+        /// <returns></returns>
+        public async Task<IList<Role>> QueryRoleAsync(string searchText = "")
+        {
+            return await roleRepository.QueryRoleAsync(searchText);
+        }
+        /// <summary>
+        /// 新增角色
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public async Task<(bool, string)> AddRoleAsync(Role role)
+        {
+            var ir = await roleManager.CreateAsync(role);
+            if (!ir.Succeeded)
+            {
+                return (false, "创建角色失败");
+            }
+            return (true, "");
+        }
+        /// <summary>
+        /// 更新角色
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<(bool, string)> UpdateRoleAsync(Guid id, string? name, string? description)
+        {
+            Role? role = await roleManager.FindByIdAsync(id.ToString());
+            if (role == null)
+            {
+                return (false, "不存在该角色");
+            }
+            if (name != null)
+                role.Name = name;
+            if (description != null)
+                role.Description = description;
+
+            var ir = await roleManager.UpdateAsync(role);
+            if (!ir.Succeeded)
+            {
+                return (false, "更新角色信息失败");
+            }
+            return (true, "");
+        }
+        /// <summary>
+        /// 获取单个角色信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Role?> GetRoleAsync(Guid id)
+        {
+            return await roleManager.FindByIdAsync(id.ToString());
+        }
+        /// <summary>
+        /// 删除角色
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public async Task RemoveRoleAsync(params Guid[] ids)
+        {
+            foreach (Guid id in ids)
+            {
+                await roleRepository.DeleteRoleAsync(id);
+            }
         }
     }
 }

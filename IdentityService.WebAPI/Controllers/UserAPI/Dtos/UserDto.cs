@@ -22,19 +22,23 @@ namespace IdentityService.WebAPI.Controllers.UserAPI.Dtos
 
         public bool IsLockout { get; set; } = false;
 
+        public Guid Avatar {  get; set; }=Guid.Empty;
+
+
         public UserDto() { }
         public UserDto(User user)
         {
-            this.Id=user.Id;
+            this.Id = user.Id;
             this.UserName = user.UserName!;
             this.PhoneNumber = user.PhoneNumber;
             this.Email = user.Email;
-            this.CreateTime=user.CreateTime;
-            this.LockoutEnd = user.LockoutEnd!=null?DateTimeOffset.Parse(user.LockoutEnd.ToString()!).ToLocalTime():null;
+            this.CreateTime = user.CreateTime;
+            this.LockoutEnd = user.LockoutEnd != null ? DateTimeOffset.Parse(user.LockoutEnd.ToString()!).ToLocalTime() : null;
             if (this.LockoutEnd != null && this.LockoutEnd > DateTimeOffset.Now)
             {
-                IsLockout= true;
+                IsLockout = true;
             }
+            this.Avatar=user.Avatar;
         }
     }
     public class AddUserDtoValidator : AbstractValidator<UserDto>

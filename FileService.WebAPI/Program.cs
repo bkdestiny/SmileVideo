@@ -21,7 +21,7 @@ namespace FileService.WebAPI
 
             builder.Services.Configure<FormOptions>(options =>
             {
-                options.MultipartBodyLengthLimit = 3_1024_1024_1024; // 设置文件上传大小限制为 3 GB
+                options.MultipartBodyLengthLimit = 3_000_000_000; // 设置文件上传大小限制为 3 GB
             });
 
             #region 通常服务注册

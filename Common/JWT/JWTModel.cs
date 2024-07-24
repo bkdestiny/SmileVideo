@@ -25,7 +25,7 @@ namespace Common.JWT
 
         public Guid Avatar {  get; init; }
 
-        private JWTModel() { }
+        public JWTModel() { }
 
         public JWTModel(Guid id, string name, string role, string ipAddress, Guid avatar)
         {

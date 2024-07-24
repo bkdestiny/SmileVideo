@@ -87,7 +87,7 @@ namespace VodService.Domain.Entities
         /// <param name="rootVideoComment"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static VodVideoComment CreateAnswerSubVideoComment(Guid userId,Guid respondentUserId,string content)
+        public static VodVideoComment CreateAnswerSubVideoComment(Guid userId,Guid? respondentUserId,string content)
         {
             VodVideoComment instance = new VodVideoComment();
             instance.UserId = userId;

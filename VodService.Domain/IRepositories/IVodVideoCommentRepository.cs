@@ -11,7 +11,7 @@ namespace VodService.Domain.IRepositories
     {
         Task AddVodVideoCommentAsync(VodVideoComment vodVideoComment);
 
-        Task<VodVideoComment?> FindVodVideoCommentByIdAsync(Guid id); 
-        
+        Task<VodVideoComment?> FindVodVideoCommentByIdAsync(Guid id);
+        Task<IList<VodVideoComment>> QueryVodVideoCommentAsync(Guid videoId,Guid rootVideoCommentId);
     }
 }

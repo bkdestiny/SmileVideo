@@ -13,6 +13,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
     [Route("VodVideoClassify")]
     [ApiController]
     [UnitOfWork([typeof(VodDbContext)])]
+    [Authorize]
     public class VodVideoClassifyAPIController : ControllerBase
     {
         private readonly VodDomainService vodDomainService;
@@ -28,7 +29,7 @@ namespace VodService.WebAPI.Controllers.VodVideoClassifyAPI
         /// <returns></returns>
         [HttpPost("AddVodVideoClassify")]
         [Idempotent]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result>> AddVodVideoClassify(VodVideoClassifyDto dto)
         {
             var vr=new VodVideoClassifyDtoValidator().Validate(dto);

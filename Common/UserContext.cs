@@ -9,7 +9,7 @@ namespace Common
 {
     public class UserContext
     {
-        private static readonly ThreadLocal<JWTModel> local = new ThreadLocal<JWTModel>();
+        private static readonly ThreadLocal<JWTModel> local = new ThreadLocal<JWTModel>(()=>new JWTModel());
 
         public static JWTModel UserInfo
         {

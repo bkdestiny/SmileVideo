@@ -5,6 +5,7 @@ using FileService.Domain.DomainServices;
 using FileService.Domain.Entites;
 using FileService.Infrastructure;
 using FileService.WebAPI.Controllers.SysFileAPI.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
@@ -13,7 +14,8 @@ namespace FileService.WebAPI.Controllers.SysFileAPI
 {
     [Route("SysFile")]
     [ApiController]
-    [UnitOfWork([typeof(SysFileDbContext)])]
+    [UnitOfWork([typeof(SysFileDbContext)],EnableTransaction =false)]
+    [Authorize]
     public class SysFileAPIControllerController : ControllerBase
     {
         private readonly SysFileDomainService sysFileDomainService;

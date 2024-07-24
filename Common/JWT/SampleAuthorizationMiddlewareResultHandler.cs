@@ -20,7 +20,7 @@ namespace Common.JWT
         private readonly AuthorizationMiddlewareResultHandler defaultHandler = new();
         public async Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
         {
-            string responseBody = "{'code':401,'message':'没有权限'}";
+            string responseBody = "{\"code\":401,\"message\":\"没有权限\"}";
             bool access = false;
             try
             {
@@ -34,13 +34,13 @@ namespace Common.JWT
                     if (new DateTime(expirationTime)<=DateTime.Now)
                     {
                         //Token已过期
-                        responseBody = "{'code':403,'message':'登录失效'}";
+                        responseBody = "{\"code\":403,\"message\":\"登录失效\"}";
                         Console.WriteLine(realIpAddress + "携带的token已过期");
                     }
                     else if (!realIpAddress.Equals(jwtIpAddress))
                     {
                         //IP地址不合法
-                        responseBody = "{'code':403,'message':'登录失效'}";
+                        responseBody = "{\"code\":403,\"message\":\"登录失效\"}";
                         Console.WriteLine(realIpAddress + "携带的token与Ip地址不一致");
                     }
                     else
@@ -58,12 +58,12 @@ namespace Common.JWT
                     if(authorizeResult.AuthorizationFailure!=null&&authorizeResult.AuthorizationFailure.FailedRequirements.Any(a=>a is RolesAuthorizationRequirement))
                     {
                         //没有权限
-                        responseBody = "{'code':401,'message':'没有权限'}";
+                        responseBody = "{\"code\":401,\"message\":\"没有权限\"}";
                     }
                     else
                     {
                         //Token为空或者校验不合法
-                        responseBody = "{'code':403,'message':'登录失效'}";
+                        responseBody = "{\"code\":403,\"message\":\"登录失效\"}";
                     }
                     Console.WriteLine(realIpAddress + "未携带token或校验不合法");
                 }

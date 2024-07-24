@@ -14,6 +14,7 @@ namespace FileService.WebAPI.Controllers.UploadAPI
     [Route("Upload")]
     [ApiController]
     [UnitOfWork([typeof(SysFileDbContext)],EnableTransaction =false)]
+    [Authorize(Roles ="Admin")]
     public class UploadAPIController : ControllerBase
     {
         private readonly SysFileDomainService sysFileDomainService;
@@ -29,7 +30,7 @@ namespace FileService.WebAPI.Controllers.UploadAPI
         /// <returns></returns>
         [HttpPost("UploadFile")]
         [Idempotent]
-        [Authorize(Roles = "Admin")]
+        [RequestSizeLimit(3_000_000_000)]
         public async Task<ActionResult<Result>> UploadFromAdmin(UploadFromAdminRequest req)
         {
             var valid = new UploadFromAdminRequestValidaror().Validate(req);
@@ -49,13 +50,12 @@ namespace FileService.WebAPI.Controllers.UploadAPI
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        [HttpPost("UploadVideoAndConvertM3u8")]
+        [HttpPost("UploadVideoAndConvertHls")]
         [RequestSizeLimit(3_000_000_000)]
-        [Authorize(Roles = "Admin")]
         [Idempotent]
-        public async Task<ActionResult<Result>> UploadVideoAndConvertM3u8(UploadVideoAndConvertM3u8Request req)
+        public async Task<ActionResult<Result>> UploadVideoAndConvertHls(UploadVideoAndConvertHlsRequest req)
         {
-            var vr = new UploadVideoAndConvertM3u8RequestValidator().Validate(req);
+            var vr = new UploadVideoAndConvertHlsRequestValidator().Validate(req);
             if (!vr.IsValid)
             {
                 return Result.Error(vr.Errors[0].ErrorMessage);
