@@ -35,19 +35,21 @@ namespace Common.Filters
             else
             {
                 return caDesc.ControllerTypeInfo
-                .GetCustomAttribute<UnitOfWorkAttribute>(); 
+                .GetCustomAttribute<UnitOfWorkAttribute>();
             }
         }
-        public async Task OnActionExecutionAsync(ActionExecutingContext context,
-            ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var uowAttr = GetUoWAttr(context.ActionDescriptor);
-            if (uowAttr == null)
+            string requestMethod = context.HttpContext.Request.Method.ToUpper();
+            //Get请求不开启事务和使用SaceChange
+            if (requestMethod.Equals("GET") || uowAttr == null)
             {
                 await next();
                 return;
             }
-            if (uowAttr.EnableTransaction) {
+            if (uowAttr.EnableTransaction)
+            {
                 //开启事务
                 using TransactionScope txScope = new(TransactionScopeAsyncFlowOption.Enabled);
                 List<DbContext> dbCtxs = new List<DbContext>();
@@ -91,8 +93,9 @@ namespace Common.Filters
                         await dbCtx.SaveChangesAsync();
                     }
                 }
+
             }
-            
+
         }
     }
 }

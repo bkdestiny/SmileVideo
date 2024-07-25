@@ -66,7 +66,7 @@ namespace Initializer
                 #endregion
 
                 #region 集中式日志 Exceptionless 其它方案:ELK、自己部署日志服务器
-               // ExceptionlessClient.Default.Startup("hw4SGRNRrkgY1BwXJ2LERakjUC7iHsKVJZa8sOpK");
+                //ExceptionlessClient.Default.Startup("string");
                 //ExceptionlessClient.Default.Configuration.SetDefaultMinLogLevel(Exceptionless.Logging.LogLevel.Info);//默认最低级别是Warning
                 #endregion
 
@@ -121,7 +121,7 @@ namespace Initializer
                 builder.Services.AddMvc(opt =>
                 {
                     opt.Filters.Add<IdempotentFilter>();//幂等性拦截器 [IdempotentAttribute]
-                    opt.Filters.Add<LoggingFiliter>();
+                    opt.Filters.Add<LoggingFiliter>();//记录请求信息日志
                     opt.Filters.Add<CommonExceptionFilter>();//全局异常拦截器
                     opt.Filters.Add<UnitOfWorkFilter>();//工作单元 [UnitOfWorkAttribute]
                 });

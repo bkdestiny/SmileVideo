@@ -10,6 +10,10 @@ using Common.Models;
 using System.Security.Claims;
 using System.Net;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Filters;
 namespace Common.JWT
 {
     /// <summary>
@@ -18,17 +22,25 @@ namespace Common.JWT
     public class SampleAuthorizationMiddlewareResultHandler : IAuthorizationMiddlewareResultHandler
     {
         private readonly AuthorizationMiddlewareResultHandler defaultHandler = new();
+
+        private readonly ILogger<SampleAuthorizationMiddlewareResultHandler> logger;
+
+        public SampleAuthorizationMiddlewareResultHandler(ILogger<SampleAuthorizationMiddlewareResultHandler> logger)
+        {
+            this.logger = logger;
+        }
+
         public async Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
         {
             string responseBody = "{\"code\":401,\"message\":\"没有权限\"}";
-            bool access = false;
             try
             {
                 string realIpAddress = HttpHelper.GetRemoteIpAddress(context);
-                //if (context.User.Identity!.IsAuthenticated)
+                logger.LogInformation("授权信息：{info}", new { Time=DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),Ip = realIpAddress, Path = context.Request.Path,AuthorizeResult=authorizeResult.Succeeded});
                 if(authorizeResult.Succeeded)
                 {
                     //JWT初步校验通过(角色和Token合法性）
+                    JWTModel userInfo = JWTHelper.BuildJWTModel(context.User.Claims);
                     string jwtIpAddress = context.User.Claims.Single(c => c.Type.Equals("IpAddress")).Value;
                     long expirationTime = long.Parse(context.User.Claims.Single(c => c.Type.Equals("ExpirationTime")).Value);
                     if (new DateTime(expirationTime)<=DateTime.Now)
@@ -46,7 +58,6 @@ namespace Common.JWT
                     else
                     {
                         //校验完全通过
-                        JWTModel userInfo=JWTHelper.BuildJWTModel(context.User.Claims);
                         UserContext.UserInfo = userInfo;
                         await next(context);
                         UserContext.Remove();
@@ -65,7 +76,7 @@ namespace Common.JWT
                         //Token为空或者校验不合法
                         responseBody = "{\"code\":403,\"message\":\"登录失效\"}";
                     }
-                    Console.WriteLine(realIpAddress + "未携带token或校验不合法");
+                   // Console.WriteLine(realIpAddress + "未携带token或校验不合法");
                 }
                 context.Response.StatusCode = 200;
                 await context.Response.WriteAsync(responseBody);

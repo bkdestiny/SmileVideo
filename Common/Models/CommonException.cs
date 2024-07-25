@@ -9,12 +9,16 @@ namespace Common.Models
 {
     public class CommonException : Exception
     {
-        private int code = 500;
+        /*        public int Code = 500;
 
-        private string message = "请求失败";
+                private string message = "请求失败";
 
-        public int Code { get { return code; } }
-        public string Message { get { return message; } }
+                public int Code { get { return code; } }
+                public string Message { get { return message; } }*/
+
+        public int Code { get; set; } = 500;
+
+        public string Message { get; set; } = "请求失败";
 
         public CommonException()
         {
@@ -23,16 +27,16 @@ namespace Common.Models
 
         public CommonException(int code)
         {
-            this.code = code;
+            this.Code = code;
         }
         public CommonException(string message)
         {
-            this.message = message;
+            this.Message = message;
         }
         public CommonException(int code, string message)
         {
-            this.code = code;
-            this.message = message;
+            this.Code = code;
+            this.Message = message; 
         }
     }
 }

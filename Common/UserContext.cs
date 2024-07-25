@@ -9,16 +9,16 @@ namespace Common
 {
     public class UserContext
     {
-        private static readonly ThreadLocal<JWTModel> local = new ThreadLocal<JWTModel>(()=>new JWTModel());
+        private static readonly ThreadLocal<JWTModel?> local = new ThreadLocal<JWTModel?>(()=>new JWTModel());
 
-        public static JWTModel UserInfo
+        public static JWTModel? UserInfo
         {
             get
             {
-                if (local.Value == null)
+/*                if (local.Value == null)
                 {
                     throw new Exception("在不需要JWT的接口中尝试获取用户信息");
-                }
+                }*/
                 return local.Value;
             }
             set { local.Value = value; }
