@@ -40,7 +40,7 @@ namespace VodService.Infrastructure.Repositories
 
         public async Task<IEnumerable<VodVideoPart>> QueryVodVideoPartAsync(Guid videoId, string? searchText)
         {
-            return await vodDbContext.VodVideoParts.Where(p => p.Video.Id == videoId).Where(e=>!string.IsNullOrEmpty(searchText)?e.PartName.Contains(searchText):true).Include(p=>p.Video).ToListAsync() ;
+            return await vodDbContext.VodVideoParts.Where(p => p.Video.Id == videoId).Where(e=>!string.IsNullOrEmpty(searchText)?e.PartName.Contains(searchText):true).Include(p=>p.Video).AsNoTracking().ToListAsync() ;
         }
 
         public async Task RemoveVodVideoPartByIdAsync(Guid id)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,6 +36,18 @@ namespace Common.JWT
             Role = role;
             IpAddress = ipAddress;
             Avatar = avatar;
+        }
+        public JWTModel(List<Claim> claims)
+        {
+            Id = new Guid(claims.SingleOrDefault(c => c.Type == "Id").Value);
+            Name = claims.SingleOrDefault(c => c.Type == "Name").Value;
+            Role = claims.SingleOrDefault(c => c.Type == "Role").Value;
+            IpAddress = claims.SingleOrDefault(c => c.Type == "IpAddress").Value;
+            Avatar = new Guid(claims.SingleOrDefault(c => c.Type == "Avatar").Value);
+        }
+        public Boolean HasRole(string roleName)
+        {
+            return Role.ToLower().Contains(roleName.ToLower());
         }
 
         public void Dispose()

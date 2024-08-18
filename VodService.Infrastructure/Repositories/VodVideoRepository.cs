@@ -61,7 +61,7 @@ namespace VodService.Infrastructure.Repositories
             return await vodDbContext.VodVideos
                 .Where(e =>classifyIds .Count>0 ? classifyIds.All(id=>e.VideoClassifies.Any(c=>c.Id==id)): true && videoStatus!=null?e.VideoStatus==videoStatus:true)
                 .Where(e=>!string.IsNullOrEmpty(searchText)?e.VideoName.Contains(searchText)||e.Profile.Contains(searchText)||e.Description.Contains(searchText):true)
-                .Include(e => e.VideoClassifies).ToListAsync();
+                .Include(e => e.VideoClassifies).AsNoTracking().ToListAsync();
         }
         public async Task<List<VodVideo>?> Test(Guid id)
         {

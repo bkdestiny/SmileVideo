@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using AsmResolver.PE.DotNet.ReadyToRun;
+using Azure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,17 +12,29 @@ namespace Common.Utils
 {
     public class FfmpegHelper
     {
+        /// <summary>
+        /// 转换mp4文件为hls
+        /// </summary>
+        /// <param name="mp4Path">mp4文件绝对路径</param>
+        /// <param name="outputFolder">输出hls文件夹路径</param>
+        /// <returns>m3u8文件路径</returns>
+        /// <exception cref="Exception"></exception>
         public static string? ConvertMp4ToHls(string mp4Path, string outputFolder)
         {
             string tsFilePath = "";
             try
             {
+                if (mp4Path.LastIndexOf(".mp4") == -1)
+                {
+                    return null;
+                }
                 if (!Directory.Exists(outputFolder))
                 {
+                    //输出hls文件夹不存在，创建文件夹
                     Directory.CreateDirectory(outputFolder);
                 }
                 /**
-                * 先将MP4文件转换为Ts文件
+                * 先将MP4文件转换为一个Ts文件
                 * ffmpeg -y -i abc.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb abc.ts
                 * */
                 tsFilePath = outputFolder + "/playTs.ts";
@@ -88,7 +101,7 @@ namespace Common.Utils
             }
             catch (Exception ex)
             {
-                throw new Exception("视频转换Hls格式失败,"+ex.Message);
+                throw new Exception("mp4文件转换Hls格式失败,"+ex.Message);
             }
             finally
             {

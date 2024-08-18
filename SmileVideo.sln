@@ -27,11 +27,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileService.WebAPI", "FileS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VodService", "VodService", "{87EA4AF5-93C3-400D-A27E-3AB0F578D1D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodService.Domain", "VodService.Domain\VodService.Domain.csproj", "{20EBBF05-03DD-4D71-860A-95B745BD1C65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodService.Domain", "VodService.Domain\VodService.Domain.csproj", "{20EBBF05-03DD-4D71-860A-95B745BD1C65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodService.Infrastructure", "VodService.Infrastructure\VodService.Infrastructure.csproj", "{4D942BAA-C21D-426A-B97C-1A8959EC30EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodService.Infrastructure", "VodService.Infrastructure\VodService.Infrastructure.csproj", "{4D942BAA-C21D-426A-B97C-1A8959EC30EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodService.WebAPI", "VodService.WebAPI\VodService.WebAPI.csproj", "{C29FFE13-932B-4F1D-B092-DBD33141E120}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VodService.WebAPI", "VodService.WebAPI\VodService.WebAPI.csproj", "{C29FFE13-932B-4F1D-B092-DBD33141E120}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LiveService", "LiveService", "{DA84BD5F-3EDA-4B8C-B823-A46796D84494}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveService.Domain", "LiveService.Domain\LiveService.Domain.csproj", "{C7D53784-6B75-41B4-96FB-C4463BDBD1C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveService.Infrastructure", "LiveService.Infrastructure\LiveService.Infrastructure.csproj", "{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveService.WebAPI", "LiveService.WebAPI\LiveService.WebAPI.csproj", "{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +91,18 @@ Global
 		{C29FFE13-932B-4F1D-B092-DBD33141E120}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C29FFE13-932B-4F1D-B092-DBD33141E120}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C29FFE13-932B-4F1D-B092-DBD33141E120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7D53784-6B75-41B4-96FB-C4463BDBD1C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7D53784-6B75-41B4-96FB-C4463BDBD1C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7D53784-6B75-41B4-96FB-C4463BDBD1C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7D53784-6B75-41B4-96FB-C4463BDBD1C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +119,9 @@ Global
 		{20EBBF05-03DD-4D71-860A-95B745BD1C65} = {87EA4AF5-93C3-400D-A27E-3AB0F578D1D1}
 		{4D942BAA-C21D-426A-B97C-1A8959EC30EE} = {87EA4AF5-93C3-400D-A27E-3AB0F578D1D1}
 		{C29FFE13-932B-4F1D-B092-DBD33141E120} = {87EA4AF5-93C3-400D-A27E-3AB0F578D1D1}
+		{C7D53784-6B75-41B4-96FB-C4463BDBD1C9} = {DA84BD5F-3EDA-4B8C-B823-A46796D84494}
+		{0F3D271C-7ACC-4011-BCC5-8080A9FA67A8} = {DA84BD5F-3EDA-4B8C-B823-A46796D84494}
+		{A6C67CC4-F4A8-44FD-88DD-81C51CB3ACF0} = {DA84BD5F-3EDA-4B8C-B823-A46796D84494}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9FD7CCD7-B341-42D5-ACE5-8FBBF514EC3F}

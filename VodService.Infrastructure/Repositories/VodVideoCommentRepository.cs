@@ -31,7 +31,13 @@ namespace VodService.Infrastructure.Repositories
 
         public async Task<IList<VodVideoComment>> QueryVodVideoCommentAsync(Guid videoId,Guid rootVideoCommentId)
         {
-            return await vodDbContext.VodVideoComments.Where(e =>e.Video.Id == videoId).Include(e=>e.RootVideoComment).Where(e=>rootVideoCommentId!=Guid.Empty? e.RootVideoComment!=null&&e.RootVideoComment.Id==rootVideoCommentId:e.RootVideoComment==null).Include(e => e.Video).Include(e => e.SubVideoComments).ToListAsync();
+            return await vodDbContext.VodVideoComments
+                .Where(e =>e.Video.Id == videoId)
+                .Include(e=>e.RootVideoComment)
+                .Where(e=>rootVideoCommentId!=Guid.Empty? e.RootVideoComment!=null&&e.RootVideoComment.Id==rootVideoCommentId:e.RootVideoComment==null)
+                .Include(e => e.Video).Include(e => e.SubVideoComments)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

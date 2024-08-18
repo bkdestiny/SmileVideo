@@ -24,11 +24,17 @@ namespace FileService.WebAPI
                 options.MultipartBodyLengthLimit = 3_000_000_000; // 设置文件上传大小限制为 3 GB
             });
 
+            string? logRootDir = configuration.GetValue<string>("LogRootDir");
+            if(logRootDir == null)
+            {
+                logRootDir = "d://SmileVideo//FileService//logs";
+            }
             #region 通常服务注册
             builder.ConfigureExtraServices(new InitializerOptions
             {
+                ApplicationName = "FileService",
                 EventBusQueueName = "FileService.WebAPI",
-                LogFilePath = $"d:/SmileVideo/FileService/logs/{DateTime.Now:yyyy-MM-dd}//logging.log"
+                LogFilePath = $"{logRootDir}/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
             #endregion
 

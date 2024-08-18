@@ -1,11 +1,11 @@
 
 using Initializer;
+using LiveService.Domain.DomainServices;
+using LiveService.Domain.IRepositories;
+using LiveService.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
-using VodService.Domain.DomainServices;
-using VodService.Domain.IRepositories;
-using VodService.Infrastructure.Repositories;
 
-namespace VodService.WebAPI
+namespace LiveService.WebAPI
 {
     public class Program
     {
@@ -13,27 +13,24 @@ namespace VodService.WebAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            IConfiguration configuration = builder.Configuration;
-            // Add services to the container.
             #region 通常服务注册
-            string? logRootDir = configuration.GetValue<string>("LogRootDir");
+            string? logRootDir = builder.Configuration.GetValue<string>("LogRootDir");
             if (logRootDir == null)
             {
-                logRootDir = "d://SmileVideo//VodService//logs";
+                logRootDir = "d://SmileVideo//LiveService//logs";
             }
             builder.ConfigureExtraServices(new InitializerOptions
             {
-                ApplicationName="VodService",
-                EventBusQueueName = "VodService.WebAPI",
+                ApplicationName = "LiveService",
+                EventBusQueueName = "LiveService.WebAPI",
                 LogFilePath = $"{logRootDir}/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
             #endregion
 
-            builder.Services.AddScoped<IVodVideoRepository, VodVideoRepository>();
-            builder.Services.AddScoped<IVodVideoClassifyRepository, VodVideoClassifyRepository>();
-            builder.Services.AddScoped<IVodVideoPartRepository, VodVideoPartRepository>();
-            builder.Services.AddScoped<IVodVideoCommentRepository, VodVideoCommentRepository>();
-            builder.Services.AddScoped<VodDomainService>();
+            builder.Services.AddScoped<LiveDomainService>();
+            builder.Services.AddScoped<ILiveRoomRepository, LiveRoomRepository>();
+
+            // Add services to the container.
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -49,11 +46,11 @@ namespace VodService.WebAPI
                 app.UseSwaggerUI();
             }
 
-            
+
             #region 通常
             app.UseDefault();
             #endregion
-            
+
             app.MapControllers();
 
             app.Run();

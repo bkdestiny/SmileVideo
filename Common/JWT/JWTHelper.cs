@@ -1,12 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.JWT
 {
@@ -43,6 +38,29 @@ namespace Common.JWT
             string role = claims.Single(c => c.Type.Equals("Role")).Value;
             Guid avatar = new Guid(claims.Single(c => c.Type.Equals("Avatar")).Value);
             return new JWTModel(id, ipAddress, name, role, avatar);
+        }
+        public static JWTModel? ParseJWT(string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+                if (jsonToken != null)
+                {
+                    // 获取所有声明
+                    List<Claim> claims = jsonToken.Claims.ToList();
+                    JWTModel jwtModel = new JWTModel(claims);
+                    return jwtModel;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

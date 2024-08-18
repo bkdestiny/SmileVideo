@@ -118,7 +118,7 @@ namespace Common.DistributeCache
             " else\n" +
             " return false\n" +
             " end";
-            long endTime = DateTime.Now.AddSeconds(waitSeconds).Ticks;
+            DateTime endTime = DateTime.Now.AddSeconds(waitSeconds);
             do
             {
                 RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(LuaScript.Prepare(tryLockScript), new { key = key, token = token, expire = expireSeconds });
@@ -127,7 +127,7 @@ namespace Common.DistributeCache
                     return true;
                 }
             }
-            while (waitSeconds!=0&&DateTime.Now.Ticks<endTime);
+            while (waitSeconds!=0&&DateTime.Now<endTime);
             return false;
         }
         /// <summary>
@@ -152,7 +152,7 @@ namespace Common.DistributeCache
             "   end" +
             " return false;" +
             " end";
-            long endTime = DateTime.Now.AddSeconds(waitSeconds).Ticks;
+            DateTime endTime = DateTime.Now.AddSeconds(waitSeconds);
             do
             {
                 RedisResult redisReult = await GetDatabase().ScriptEvaluateAsync(LuaScript.Prepare(tryLockScript), new {key=key,token=token,expire=expireSeconds,watchDogExpire=expireSeconds/3});
@@ -161,7 +161,7 @@ namespace Common.DistributeCache
                     return true;
                 }
             }
-            while (waitSeconds != 0 && DateTime.Now.Ticks < endTime);
+            while (waitSeconds != 0 && DateTime.Now < endTime);
             return false;
         }
         /// <summary>

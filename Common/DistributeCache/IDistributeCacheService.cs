@@ -42,22 +42,22 @@ namespace Common.DistributeCache
         /// <summary>
         /// 尝试获取锁
         /// </summary>
-        /// <param name="lockName"></param>
-        /// <param name="key"></param>
-        /// <param name="expireSeconds"></param>
-        /// <param name="waitSeconds"></param>
+        /// <param name="key">锁名称</param>
+        /// <param name="token">一般为时间戳</param>
+        /// <param name="expireSeconds">自动过期时间</param>
+        /// <param name="waitSeconds">等待时间,值为0时只尝试获取一次</param>
         /// <returns></returns>
         Task<bool> tryLockAsync(string key, string token, int expireSeconds, int waitSeconds);
 
         /// <summary>
         /// 获取锁,并实现看门狗机制 过期时间小于三分之一时续期
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="token"></param>
-        /// <param name="expireSeconds"></param>
-        /// <param name="waitSeconds"></param>
+        /// <param name="key">锁名称</param>
+        /// <param name="token">一般为时间戳</param>
+        /// <param name="expireSeconds">自动过期时间</param>
+        /// <param name="waitSeconds">等待时间,值为0时只尝试获取一次</param>
         /// <returns></returns>
-        Task<bool> LockAsync(string key,string token,int expireSeconds, int waitSeconds);
+        Task<bool> LockAsync(string key, string token, int expireSeconds, int waitSeconds);
         /// <summary>
         /// 释放锁
         /// </summary>

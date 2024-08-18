@@ -48,7 +48,9 @@ namespace VodService.Infrastructure.Repositories
         {
             return await vodDbContext.VodVideoClassifies
                 .Where(e => classifyType!=null?e.ClassifyType == classifyType:1==1)
-                .Where(e=>!string.IsNullOrEmpty(searchText)?e.ClassifyName.Contains(searchText):true).ToListAsync();
+                .Where(e=>!string.IsNullOrEmpty(searchText)?e.ClassifyName.Contains(searchText):true)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task RemoveVodVideoClassifyByIdAsync(Guid id)

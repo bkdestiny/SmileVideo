@@ -8,6 +8,7 @@ using IdentityService.Infrastructure.Repositories;
 using IdentityService.WebAPI.BackgroundServices;
 using Initializer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 
 namespace IdentityService.WebAPI
@@ -20,12 +21,18 @@ namespace IdentityService.WebAPI
 
             // Add services to the container.
 
-
+            IConfiguration configuration = builder.Configuration;
             //批量初始化
+            string? logRootDir = configuration.GetValue<string>("LogRootDir");
+            if (logRootDir == null)
+            {
+                logRootDir = "d://SmileVideo//IdentityService//logs";
+            }
             builder.ConfigureExtraServices(new InitializerOptions
             {
+                ApplicationName="IdentityService",
                 EventBusQueueName = "IdentityService.WebAPI",
-                LogFilePath = $"d:/SmileVideo/IdentityService/logs/{DateTime.Now:yyyy-MM-dd}//logging.log"
+                LogFilePath = $"{logRootDir}/{DateTime.Now:yyyy-MM-dd}//logging.log"
             });
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
